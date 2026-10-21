@@ -4,23 +4,50 @@ author: "Kayla Nowak"
 format: html
 ---
 
-## Quarto
-
-Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
-
-## Running Code
-
-When you click the **Render** button a document will be generated that includes both content and the output of embedded code. You can embed code like this:
-
 ```{r}
-1 + 1
+#| message: False
+#| warning: False
+ 
+library(tidyverse)
+library(ggplot2)
 ```
 
-You can add options to executable code like this 
+## Data Setup
+
+Import downloaded raw CSV data. 
+
+Convert to R-friendly variable names using the `janitor` package, and force data to classic tibble structure (instead of `spc_tbl_` )
 
 ```{r}
-#| echo: false
-2 * 2
+mxmh_raw <- read_csv("data/mxmh_survey_results.csv")
+mxmh_raw <- janitor::clean_names(as_tibble(mxmh_raw))
+str(mxmh_raw)
 ```
 
-The `echo: false` option disables the printing of code (only output is displayed).
+
+Basic data cleaning
+
+```{r}
+
+```
+
+
+## Numeric EDA
+
+**One-Way Frequency Table**
+```{r}
+
+```
+
+**Two-Way Contingency Table**
+
+```{r}
+
+```
+
+## Visual EDA
+
+```{r}
+
+```
+

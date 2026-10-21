@@ -4,20 +4,27 @@
     "href": "Static_EDA.html",
     "title": "Project 2 - Static EDA",
     "section": "",
-    "text": "Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see https://quarto.org."
+    "text": "library(tidyverse)\nlibrary(ggplot2)"
   },
   {
-    "objectID": "Static_EDA.html#quarto",
-    "href": "Static_EDA.html#quarto",
+    "objectID": "Static_EDA.html#data-setup",
+    "href": "Static_EDA.html#data-setup",
     "title": "Project 2 - Static EDA",
-    "section": "",
-    "text": "Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see https://quarto.org."
+    "section": "Data Setup",
+    "text": "Data Setup\nImport downloaded raw CSV data.\nConvert to R-friendly variable names using the janitor package, and force data to classic tibble structure (instead of spc_tbl_ )\n\nmxmh_raw &lt;- read_csv(\"data/mxmh_survey_results.csv\")\n\nRows: 736 Columns: 33\n── Column specification ────────────────────────────────────────────────────────\nDelimiter: \",\"\nchr (26): Timestamp, Primary streaming service, While working, Instrumentali...\ndbl  (7): Age, Hours per day, BPM, Anxiety, Depression, Insomnia, OCD\n\nℹ Use `spec()` to retrieve the full column specification for this data.\nℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.\n\nmxmh_raw &lt;- janitor::clean_names(as_tibble(mxmh_raw))\nstr(mxmh_raw)\n\ntibble [736 × 33] (S3: tbl_df/tbl/data.frame)\n $ timestamp                 : chr [1:736] \"8/27/2022 19:29:02\" \"8/27/2022 19:57:31\" \"8/27/2022 21:28:18\" \"8/27/2022 21:40:40\" ...\n $ age                       : num [1:736] 18 63 18 61 18 18 18 21 19 18 ...\n $ primary_streaming_service : chr [1:736] \"Spotify\" \"Pandora\" \"Spotify\" \"YouTube Music\" ...\n $ hours_per_day             : num [1:736] 3 1.5 4 2.5 4 5 3 1 6 1 ...\n $ while_working             : chr [1:736] \"Yes\" \"Yes\" \"No\" \"Yes\" ...\n $ instrumentalist           : chr [1:736] \"Yes\" \"No\" \"No\" \"No\" ...\n $ composer                  : chr [1:736] \"Yes\" \"No\" \"No\" \"Yes\" ...\n $ fav_genre                 : chr [1:736] \"Latin\" \"Rock\" \"Video game music\" \"Jazz\" ...\n $ exploratory               : chr [1:736] \"Yes\" \"Yes\" \"No\" \"Yes\" ...\n $ foreign_languages         : chr [1:736] \"Yes\" \"No\" \"Yes\" \"Yes\" ...\n $ bpm                       : num [1:736] 156 119 132 84 107 86 66 95 94 155 ...\n $ frequency_classical       : chr [1:736] \"Rarely\" \"Sometimes\" \"Never\" \"Sometimes\" ...\n $ frequency_country         : chr [1:736] \"Never\" \"Never\" \"Never\" \"Never\" ...\n $ frequency_edm             : chr [1:736] \"Rarely\" \"Never\" \"Very frequently\" \"Never\" ...\n $ frequency_folk            : chr [1:736] \"Never\" \"Rarely\" \"Never\" \"Rarely\" ...\n $ frequency_gospel          : chr [1:736] \"Never\" \"Sometimes\" \"Never\" \"Sometimes\" ...\n $ frequency_hip_hop         : chr [1:736] \"Sometimes\" \"Rarely\" \"Rarely\" \"Never\" ...\n $ frequency_jazz            : chr [1:736] \"Never\" \"Very frequently\" \"Rarely\" \"Very frequently\" ...\n $ frequency_k_pop           : chr [1:736] \"Very frequently\" \"Rarely\" \"Very frequently\" \"Sometimes\" ...\n $ frequency_latin           : chr [1:736] \"Very frequently\" \"Sometimes\" \"Never\" \"Very frequently\" ...\n $ frequency_lofi            : chr [1:736] \"Rarely\" \"Rarely\" \"Sometimes\" \"Sometimes\" ...\n $ frequency_metal           : chr [1:736] \"Never\" \"Never\" \"Sometimes\" \"Never\" ...\n $ frequency_pop             : chr [1:736] \"Very frequently\" \"Sometimes\" \"Rarely\" \"Sometimes\" ...\n $ frequency_r_b             : chr [1:736] \"Sometimes\" \"Sometimes\" \"Never\" \"Sometimes\" ...\n $ frequency_rap             : chr [1:736] \"Very frequently\" \"Rarely\" \"Rarely\" \"Never\" ...\n $ frequency_rock            : chr [1:736] \"Never\" \"Very frequently\" \"Rarely\" \"Never\" ...\n $ frequency_video_game_music: chr [1:736] \"Sometimes\" \"Rarely\" \"Very frequently\" \"Never\" ...\n $ anxiety                   : num [1:736] 3 7 7 9 7 8 4 5 2 2 ...\n $ depression                : num [1:736] 0 2 7 7 2 8 8 3 0 2 ...\n $ insomnia                  : num [1:736] 1 2 10 3 5 7 6 5 0 5 ...\n $ ocd                       : num [1:736] 0 1 2 3 9 7 0 3 0 1 ...\n $ music_effects             : chr [1:736] NA NA \"No effect\" \"Improve\" ...\n $ permissions               : chr [1:736] \"I understand.\" \"I understand.\" \"I understand.\" \"I understand.\" ...\n\n\nBasic data cleaning"
   },
   {
-    "objectID": "Static_EDA.html#running-code",
-    "href": "Static_EDA.html#running-code",
+    "objectID": "Static_EDA.html#numeric-eda",
+    "href": "Static_EDA.html#numeric-eda",
     "title": "Project 2 - Static EDA",
-    "section": "Running Code",
-    "text": "Running Code\nWhen you click the Render button a document will be generated that includes both content and the output of embedded code. You can embed code like this:\n\n1 + 1\n\n[1] 2\n\n\nYou can add options to executable code like this\n\n\n[1] 4\n\n\nThe echo: false option disables the printing of code (only output is displayed)."
+    "section": "Numeric EDA",
+    "text": "Numeric EDA\nOne-Way Frequency Table\nTwo-Way Contingency Table"
+  },
+  {
+    "objectID": "Static_EDA.html#visual-eda",
+    "href": "Static_EDA.html#visual-eda",
+    "title": "Project 2 - Static EDA",
+    "section": "Visual EDA",
+    "text": "Visual EDA"
   }
 ]
