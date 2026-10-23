@@ -14,7 +14,7 @@ library(ggplot2)
 
 ## Data Setup
 
-Import downloaded raw CSV data. 
+Import downloaded raw CSV data.
 
 Convert to R-friendly variable names using the `janitor` package, and force data to classic tibble structure (instead of `spc_tbl_` )
 
@@ -24,30 +24,82 @@ mxmh_raw <- janitor::clean_names(as_tibble(mxmh_raw))
 str(mxmh_raw)
 ```
 
-
-Basic data cleaning
+Basic data cleaning (assign categorical data as factors).
 
 ```{r}
+mxmh <- mxmh_raw |>
+  mutate(
+    #Nominal factors:
+    primary_streaming_service = as.factor(primary_streaming_service),
+    fav_genre =as.factor(fav_genre),
+    #Yes/No categorical:
+    across(c("while_working", "instrumentalist", "composer", "exploratory", "foreign_languages"),
+           function(x) factor(x, levels=c("Yes", "No"))),
+    #Freq categorical:
+    across(starts_with("frequency_"),
+           function(x) factor(x, levels=c("Never", "Rarely", "Sometimes", "Very frequently"))),
+    #Effect categorical:
+    music_effects = factor(music_effects, levels=c("Improve", "No effect", "Worsen"))
+  )
 
+str(mxmh)
 ```
 
 
 ## Numeric EDA
 
-**One-Way Frequency Table**
-```{r}
+**Contingency Tables**
 
+Use tidy summary methods with results stored in tibbles. This will simplify reporting on the app.
+
+One-Way:
+
+```{r}
+mxmh |> 
+  drop_na(fav_genre) |>
+  group_by(fav_genre) |>
+  summarize(count=n(), .groups = "drop")
 ```
 
-**Two-Way Contingency Table**
+Two-Way:
+
+```{r}
+mxmh |> 
+  drop_na(fav_genre, composer) |>
+  group_by(fav_genre, composer) |>
+  summarize(count=n(), .groups = "drop") |>
+  pivot_wider(names_from = composer, values_from=count)
+```
+
+**Summary Stats** 
+
+Again, use tidy methods with tibble result storage to simplify the app. I chose to report mean, sd, min, median, max.
 
 ```{r}
 
+mxmh |>
+  group_by(frequency_classical) |>
+  select(frequency_classical, anxiety, age) |>
+  summarize(across(where(is.numeric),
+            list("Mean"   = ~ mean(.x, na.rm = TRUE),
+                 "SD"     = ~ sd(.x, na.rm = TRUE),
+                 "Min"    = ~ min(.x, na.rm = TRUE),
+                 "Median" = ~ median(.x, na.rm = TRUE),
+                 "Max"    = ~ max(.x, na.rm = TRUE)),
+            .names = "{.fn}_{.col}")
+  )
+
+#WIP!! psych option may be better for stacking
+#fyi, describe.by creates to a list with 1 df for each x 
+mxmh |>
+  select(anxiety, age) |>
+  psych::describe() |>
+  select(vars, n, mean, sd, min, median, max )
 ```
+
 
 ## Visual EDA
 
 ```{r}
 
 ```
-

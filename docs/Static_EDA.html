@@ -207,12 +207,160 @@ dbl  (7): Age, Hours per day, BPM, Anxiety, Depression, Insomnia, OCD
  $ permissions               : chr [1:736] "I understand." "I understand." "I understand." "I understand." ...</code></pre>
 </div>
 </div>
-<p>Basic data cleaning</p>
+<p>Basic data cleaning (assign categorical data as factors).</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>mxmh <span class="ot">&lt;-</span> mxmh_raw <span class="sc">|&gt;</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    <span class="co">#Nominal factors:</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">primary_streaming_service =</span> <span class="fu">as.factor</span>(primary_streaming_service),</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">fav_genre =</span><span class="fu">as.factor</span>(fav_genre),</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    <span class="co">#Yes/No categorical:</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">across</span>(<span class="fu">c</span>(<span class="st">"while_working"</span>, <span class="st">"instrumentalist"</span>, <span class="st">"composer"</span>, <span class="st">"exploratory"</span>, <span class="st">"foreign_languages"</span>),</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>           <span class="cf">function</span>(x) <span class="fu">factor</span>(x, <span class="at">levels=</span><span class="fu">c</span>(<span class="st">"Yes"</span>, <span class="st">"No"</span>))),</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>    <span class="co">#Freq categorical:</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">across</span>(<span class="fu">starts_with</span>(<span class="st">"frequency_"</span>),</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>           <span class="cf">function</span>(x) <span class="fu">factor</span>(x, <span class="at">levels=</span><span class="fu">c</span>(<span class="st">"Never"</span>, <span class="st">"Rarely"</span>, <span class="st">"Sometimes"</span>, <span class="st">"Very frequently"</span>))),</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>    <span class="co">#Effect categorical:</span></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">music_effects =</span> <span class="fu">factor</span>(music_effects, <span class="at">levels=</span><span class="fu">c</span>(<span class="st">"Improve"</span>, <span class="st">"No effect"</span>, <span class="st">"Worsen"</span>))</span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(mxmh)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>tibble [736 × 33] (S3: tbl_df/tbl/data.frame)
+ $ timestamp                 : chr [1:736] "8/27/2022 19:29:02" "8/27/2022 19:57:31" "8/27/2022 21:28:18" "8/27/2022 21:40:40" ...
+ $ age                       : num [1:736] 18 63 18 61 18 18 18 21 19 18 ...
+ $ primary_streaming_service : Factor w/ 6 levels "Apple Music",..: 5 4 5 6 5 5 6 5 5 2 ...
+ $ hours_per_day             : num [1:736] 3 1.5 4 2.5 4 5 3 1 6 1 ...
+ $ while_working             : Factor w/ 2 levels "Yes","No": 1 1 2 1 1 1 1 1 1 1 ...
+ $ instrumentalist           : Factor w/ 2 levels "Yes","No": 1 2 2 2 2 1 1 2 2 2 ...
+ $ composer                  : Factor w/ 2 levels "Yes","No": 1 2 2 1 2 1 2 2 2 2 ...
+ $ fav_genre                 : Factor w/ 16 levels "Classical","Country",..: 9 15 16 7 13 7 16 8 15 13 ...
+ $ exploratory               : Factor w/ 2 levels "Yes","No": 1 1 2 1 1 1 1 1 2 1 ...
+ $ foreign_languages         : Factor w/ 2 levels "Yes","No": 1 2 1 1 2 1 1 1 2 1 ...
+ $ bpm                       : num [1:736] 156 119 132 84 107 86 66 95 94 155 ...
+ $ frequency_classical       : Factor w/ 4 levels "Never","Rarely",..: 2 3 1 3 1 2 3 1 1 2 ...
+ $ frequency_country         : Factor w/ 4 levels "Never","Rarely",..: 1 1 1 1 1 3 1 1 4 2 ...
+ $ frequency_edm             : Factor w/ 4 levels "Never","Rarely",..: 2 1 4 1 2 1 2 2 1 2 ...
+ $ frequency_folk            : Factor w/ 4 levels "Never","Rarely",..: 1 2 1 2 1 1 3 1 3 2 ...
+ $ frequency_gospel          : Factor w/ 4 levels "Never","Rarely",..: 1 3 1 3 2 1 2 1 1 3 ...
+ $ frequency_hip_hop         : Factor w/ 4 levels "Never","Rarely",..: 3 2 2 1 4 3 2 4 1 2 ...
+ $ frequency_jazz            : Factor w/ 4 levels "Never","Rarely",..: 1 4 2 4 1 4 3 2 1 2 ...
+ $ frequency_k_pop           : Factor w/ 4 levels "Never","Rarely",..: 4 2 4 3 4 4 1 4 1 1 ...
+ $ frequency_latin           : Factor w/ 4 levels "Never","Rarely",..: 4 3 1 4 3 2 2 1 1 2 ...
+ $ frequency_lofi            : Factor w/ 4 levels "Never","Rarely",..: 2 2 3 3 3 4 2 3 1 2 ...
+ $ frequency_metal           : Factor w/ 4 levels "Never","Rarely",..: 1 1 3 1 1 2 2 1 4 1 ...
+ $ frequency_pop             : Factor w/ 4 levels "Never","Rarely",..: 4 3 2 3 3 4 2 3 1 3 ...
+ $ frequency_r_b             : Factor w/ 4 levels "Never","Rarely",..: 3 3 1 3 4 4 2 3 1 3 ...
+ $ frequency_rap             : Factor w/ 4 levels "Never","Rarely",..: 4 2 2 1 4 4 1 2 1 2 ...
+ $ frequency_rock            : Factor w/ 4 levels "Never","Rarely",..: 1 4 2 1 1 4 1 1 4 3 ...
+ $ frequency_video_game_music: Factor w/ 4 levels "Never","Rarely",..: 3 2 4 1 2 1 3 2 1 3 ...
+ $ anxiety                   : num [1:736] 3 7 7 9 7 8 4 5 2 2 ...
+ $ depression                : num [1:736] 0 2 7 7 2 8 8 3 0 2 ...
+ $ insomnia                  : num [1:736] 1 2 10 3 5 7 6 5 0 5 ...
+ $ ocd                       : num [1:736] 0 1 2 3 9 7 0 3 0 1 ...
+ $ music_effects             : Factor w/ 3 levels "Improve","No effect",..: NA NA 2 1 1 1 1 1 1 1 ...
+ $ permissions               : chr [1:736] "I understand." "I understand." "I understand." "I understand." ...</code></pre>
+</div>
+</div>
 </section>
 <section id="numeric-eda" class="level2">
 <h2 class="anchored" data-anchor-id="numeric-eda">Numeric EDA</h2>
-<p><strong>One-Way Frequency Table</strong></p>
-<p><strong>Two-Way Contingency Table</strong></p>
+<p><strong>Contingency Tables</strong></p>
+<p>Use tidy summary methods with results stored in tibbles. This will simplify reporting on the app.</p>
+<p>One-Way:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>mxmh <span class="sc">|&gt;</span> </span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">drop_na</span>(fav_genre) <span class="sc">|&gt;</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(fav_genre) <span class="sc">|&gt;</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">count=</span><span class="fu">n</span>(), <span class="at">.groups =</span> <span class="st">"drop"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 16 × 2
+   fav_genre        count
+   &lt;fct&gt;            &lt;int&gt;
+ 1 Classical           53
+ 2 Country             25
+ 3 EDM                 37
+ 4 Folk                30
+ 5 Gospel               6
+ 6 Hip hop             35
+ 7 Jazz                20
+ 8 K pop               26
+ 9 Latin                3
+10 Lofi                10
+11 Metal               88
+12 Pop                114
+13 R&amp;B                 35
+14 Rap                 22
+15 Rock               188
+16 Video game music    44</code></pre>
+</div>
+</div>
+<p>Two-Way:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>mxmh <span class="sc">|&gt;</span> </span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">drop_na</span>(fav_genre, composer) <span class="sc">|&gt;</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(fav_genre, composer) <span class="sc">|&gt;</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">count=</span><span class="fu">n</span>(), <span class="at">.groups =</span> <span class="st">"drop"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> composer, <span class="at">values_from=</span>count)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 16 × 3
+   fav_genre          Yes    No
+   &lt;fct&gt;            &lt;int&gt; &lt;int&gt;
+ 1 Classical           14    39
+ 2 Country              4    21
+ 3 EDM                  7    30
+ 4 Folk                 4    26
+ 5 Gospel               2     4
+ 6 Hip hop              6    29
+ 7 Jazz                 9    11
+ 8 K pop                1    24
+ 9 Latin                1     2
+10 Lofi                 2     8
+11 Metal               20    68
+12 Pop                 11   103
+13 R&amp;B                  3    32
+14 Rap                  4    18
+15 Rock                29   159
+16 Video game music     9    35</code></pre>
+</div>
+</div>
+<p><strong>Summary Stats</strong></p>
+<p>Again, use tidy methods with tibble result storage to simplify the app. I chose to report mean, sd, min, median, max.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>mxmh <span class="sc">|&gt;</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(frequency_classical) <span class="sc">|&gt;</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(frequency_classical, anxiety, age) <span class="sc">|&gt;</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="fu">across</span>(<span class="fu">where</span>(is.numeric),</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>            <span class="fu">list</span>(<span class="st">"Mean"</span>   <span class="ot">=</span> <span class="er">~</span> <span class="fu">mean</span>(.x, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>                 <span class="st">"SD"</span>     <span class="ot">=</span> <span class="er">~</span> <span class="fu">sd</span>(.x, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>                 <span class="st">"Min"</span>    <span class="ot">=</span> <span class="er">~</span> <span class="fu">min</span>(.x, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>                 <span class="st">"Median"</span> <span class="ot">=</span> <span class="er">~</span> <span class="fu">median</span>(.x, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>                 <span class="st">"Max"</span>    <span class="ot">=</span> <span class="er">~</span> <span class="fu">max</span>(.x, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)),</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>            <span class="at">.names =</span> <span class="st">"{.fn}_{.col}"</span>)</span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 4 × 11
+  frequency_classical Mean_anxiety SD_anxiety Min_anxiety Median_anxiety
+  &lt;fct&gt;                      &lt;dbl&gt;      &lt;dbl&gt;       &lt;dbl&gt;          &lt;dbl&gt;
+1 Never                       5.97       2.77           0              7
+2 Rarely                      5.83       2.82           0              6
+3 Sometimes                   6.00       2.74           0              7
+4 Very frequently             5.35       2.85           0              6
+# ℹ 6 more variables: Max_anxiety &lt;dbl&gt;, Mean_age &lt;dbl&gt;, SD_age &lt;dbl&gt;,
+#   Min_age &lt;dbl&gt;, Median_age &lt;dbl&gt;, Max_age &lt;dbl&gt;</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co">#WIP!! psych option may be better for stacking</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="co">#fyi, describe.by creates to a list with 1 df for each x </span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>mxmh <span class="sc">|&gt;</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(anxiety, age) <span class="sc">|&gt;</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>  psych<span class="sc">::</span><span class="fu">describe</span>() <span class="sc">|&gt;</span></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(vars, n, mean, sd, min, median, max )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>        vars   n  mean    sd min median max
+anxiety    1 736  5.84  2.79   0      6  10
+age        2 735 25.21 12.05  10     21  89</code></pre>
+</div>
+</div>
 </section>
 <section id="visual-eda" class="level2">
 <h2 class="anchored" data-anchor-id="visual-eda">Visual EDA</h2>
