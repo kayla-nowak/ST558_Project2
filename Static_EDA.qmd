@@ -48,36 +48,40 @@ str(mxmh)
 
 ## Numeric EDA
 
-**Contingency Tables**
+### Contingency Tables
 
 Use tidy summary methods with results stored in tibbles. This will simplify reporting on the app.
 
 One-Way:
 
 ```{r}
-mxmh |> 
+tab_one <- mxmh |> 
   drop_na(fav_genre) |>
   group_by(fav_genre) |>
   summarize(count=n(), .groups = "drop")
+
+tab_one
 ```
 
 Two-Way:
 
 ```{r}
-mxmh |> 
+tab_two <- mxmh |> 
   drop_na(fav_genre, composer) |>
   group_by(fav_genre, composer) |>
   summarize(count=n(), .groups = "drop") |>
   pivot_wider(names_from = composer, values_from=count)
+
+tab_two
 ```
 
-**Summary Stats** 
+### Summary Stats
 
 Again, use tidy methods with tibble result storage to simplify the app. I chose to report mean, sd, min, median, max.
 
 ```{r}
 
-mxmh |>
+tab_sum <- mxmh |>
   group_by(frequency_classical) |>
   select(frequency_classical, anxiety, age) |>
   summarize(across(where(is.numeric),
@@ -88,6 +92,8 @@ mxmh |>
                  "Max"    = ~ max(.x, na.rm = TRUE)),
             .names = "{.fn}_{.col}")
   )
+
+tab_sum
 
 #WIP!! psych option may be better for stacking
 #fyi, describe.by creates to a list with 1 df for each x 
@@ -100,6 +106,67 @@ mxmh |>
 
 ## Visual EDA
 
+### Histograms
+
+Takes 1 numeric variables, accepts 1 categorical variable as facet.
+
+```{r}
+ggplot(mxmh, aes(x=age, fill=frequency_classical)) +
+  geom_histogram() +
+  facet_wrap(~ frequency_classical) +
+  theme_minimal()
+```
+
+
+### Boxplots
+
+Takes 1 numeric variable and 1 categorical variable as x-axis grouping.
+
+```{r}
+ggplot(mxmh, aes(x=frequency_classical, y=age, fill=frequency_classical)) +
+  geom_boxplot() + 
+  theme_minimal()
+```
+
+
+**Scatterplot**
+
+WIP!! - find a different plot better suited for the data (e.g., means/SD plot)
+
+```{r}
+#ggplot(mxmh, aes(x=anxiety, y=ocd, group=composer)) +
+#  geom_point()
+```
+
+
+### Bar Charts
+
+Frequency bar chart for 1 categorical variable + 1 grouping categorical variables.
+
+```{r}
+ggplot(mxmh, aes(x=frequency_classical)) +
+  geom_bar(aes(fill=composer), position="dodge")
+```
+
+### Heatmap
+
+Frequency density for a two-variable crosstab (use tab_two results).
+
+WIP!! - %s probably better, also integrate with tab_two
+
 ```{r}
 
+##grab this from tab_two before pivot!!
+for_tile <- mxmh |> 
+  drop_na(frequency_classical, composer) |>
+  group_by(frequency_classical, composer) |>
+  summarize(count=n(), .groups = "drop")
+
+for_tile
+  
+ggplot(for_tile, aes(x=frequency_classical, y=composer)) +
+  geom_tile(aes(fill=count)) +
+ # viridis::scale_fill_viridis(discrete=FALSE) +
+  theme_minimal()
 ```
+
