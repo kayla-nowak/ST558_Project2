@@ -7,6 +7,19 @@ library(tidyverse)
 #-------------------------------------------------------------------------
 load("data/mxmh.RData")
 
+#Derive Musician index
+mxmh2 <- mxmh |>
+  mutate(musician = case_when(
+    instrumentalist == "Yes" & composer== "Yes" ~ "Instrumentalist and Composer",
+    instrumentalist =="Yes"  ~ "Instrumentalist Only",
+    composer == "Yes"  ~ "Composer Only",
+    TRUE ~ "Other/Non-Musician"))
+
+#Check derivation
+mxmh2 |> group_by(musician, instrumentalist, composer) |> 
+  summarize(n=n()) |> print()
+
+
 #-------------------------------------------------------------------------
 # Define UI
 #-------------------------------------------------------------------------
@@ -23,12 +36,15 @@ ui <- page_fillable(
       "Select from the following data subsets, and then click 'Apply Subset' to update the data accordingly.",
       br(),
       br(),
-      checkboxGroupInput(
+     selectizeInput(
         inputId = "pick_prof",
-        label = "Respondent Musician Status",
-        choiceNames = c("Instrumentalist", "Composer", "Other/Non-Musicians"),
-        choiceValues = c("inst", "comp", "other"),
-        selected = "other"
+        label = "Respondent Musician Status:",
+        choices = c("Any", 
+                        "Instrumentalist and Composer", 
+                        "Instrumentalist Only", 
+                        "Composer Only", 
+                        "Other/Non-Musicians"),
+        selected = "Any"
       ),
       br(),
       radioButtons(
@@ -43,14 +59,14 @@ ui <- page_fillable(
         inputId = "pick_age",
         label = "Age:",
         min = 10, max = 90, step=5,
-        value = c(20,40)
+        value = c(20,60)
       ),
       br(),
       sliderInput(
         inputId = "pick_hrs",
         label = "Listing Hours per Day:",
         min = 0, max = 24, step=2,
-        value = c(0,4)
+        value = c(0,24)
       ),
       br(),
       actionButton("pick_apply","Apply Subset")
@@ -99,7 +115,8 @@ server <- function(input, output, session) {
   
   ### Data Subset ###
   #when pick_apply
-  
+ 
+ 
   ### Data Download ###
   
   #Table Print
