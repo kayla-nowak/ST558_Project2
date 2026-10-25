@@ -5,7 +5,7 @@ library(tidyverse)
 #-------------------------------------------------------------------------
 # Data setup
 #-------------------------------------------------------------------------
-
+load("data/mxmh.RData")
 
 #-------------------------------------------------------------------------
 # Define UI
@@ -20,6 +20,9 @@ ui <- page_fillable(
     ## Sidebar + Widgets
     sidebarPanel(
       
+      "Select from the following data subsets, and then click 'Apply Subset' to update the data accordingly.",
+      br(),
+      br(),
       checkboxGroupInput(
         inputId = "pick_prof",
         label = "Respondent Musician Status",
@@ -49,6 +52,8 @@ ui <- page_fillable(
         min = 0, max = 24, step=2,
         value = c(0,4)
       ),
+      br(),
+      actionButton("pick_apply","Apply Subset")
    
     ),
     
@@ -58,18 +63,24 @@ ui <- page_fillable(
       ## Tab Structure
       tabsetPanel(
         type="tabs",
+        
         #About Tab
-        tabPanel("About", br(),
-                 layout_columns(
-                   card("Background info..."),
-                   card("Citations..."),
-                   card("image"),
-                   col_widths = c(12,6,6)
-                 )
-                 ),
+        tabPanel(
+          "About", br(),
+          layout_columns(
+            card("Background info..."),
+            card("Citations..."),
+            card("image"),
+            col_widths = c(12,6,6)
+            )
+          ),
         
         #Data Download Tab
-        tabPanel("Data Download"),
+        tabPanel(
+          "Data Download",
+          card(downloadLink("downloadData", "Download as CSV")),
+          DT::dataTableOutput(outputId="table_download")
+          ),
         
         #Data Exploration Tab
         tabPanel("Data Exploration")
@@ -86,6 +97,26 @@ ui <- page_fillable(
 
 server <- function(input, output, session) {
   
+  ### Data Subset ###
+  #when pick_apply
+  
+  ### Data Download ###
+  
+  #Table Print
+  output$table_download <- DT::renderDataTable({
+    mxmh
+  })
+  
+  #Download Action
+  output$downloadData <- downloadHandler(
+    filename = function(){
+      paste('mxmh_data', Sys.Date(),'.csv', sep='')
+    },
+    content = function(con){
+      write.csv(mxmh, con)
+    }
+  )
+
   
 }
 
