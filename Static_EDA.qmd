@@ -24,10 +24,14 @@ mxmh_raw <- janitor::clean_names(as_tibble(mxmh_raw))
 str(mxmh_raw)
 ```
 
-Basic data cleaning (assign categorical data as factors).
+Basic data cleaning:
+
+- assign categorical data as factors (some ordinal)
+- drop permissions variable (all records granted permission)
 
 ```{r}
 mxmh <- mxmh_raw |>
+  select(-permissions) |>
   mutate(
     #Nominal factors:
     primary_streaming_service = as.factor(primary_streaming_service),
@@ -37,12 +41,18 @@ mxmh <- mxmh_raw |>
            function(x) factor(x, levels=c("Yes", "No"))),
     #Freq categorical:
     across(starts_with("frequency_"),
-           function(x) factor(x, levels=c("Never", "Rarely", "Sometimes", "Very frequently"))),
+           function(x) factor(x, levels=c("Never", "Rarely", "Sometimes", "Very frequently"), ordered=TRUE)),
     #Effect categorical:
-    music_effects = factor(music_effects, levels=c("Improve", "No effect", "Worsen"))
+    music_effects = factor(music_effects, levels=c("Improve", "No effect", "Worsen"), ordered=TRUE)
   )
 
 str(mxmh)
+```
+
+Save cleaned data to repo for future access:
+
+```{r}
+save(mxmh, file="data/mxmh.RData")
 ```
 
 
@@ -166,7 +176,6 @@ for_tile
   
 ggplot(for_tile, aes(x=frequency_classical, y=composer)) +
   geom_tile(aes(fill=count)) +
- # viridis::scale_fill_viridis(discrete=FALSE) +
   theme_minimal()
 ```
 
