@@ -108,9 +108,8 @@ ui <- page_fillable(
 server <- function(input, output, session) {
   
   ### Data Subset ###
-  #when pick_apply
- 
-  mxmh_sub <- reactive({
+  
+  mxmh_sub <- eventReactive(input$pick_apply, {
     
     #filter by age and hour/day inputs
     sub <- mxmh |>
