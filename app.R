@@ -10,7 +10,7 @@ library(tidyverse)
 #-------------------------------------------------------------------------
 # Define UI
 #-------------------------------------------------------------------------
-ui <- fluidPage(
+ui <- page_fillable(
   
   ## Title
   titlePanel("Music and Mental Health"),
@@ -27,7 +27,7 @@ ui <- fluidPage(
         choiceValues = c("inst", "comp", "other"),
         selected = "other"
       ),
-      
+      br(),
       radioButtons(
         inputId ="pick_work",
         label = "Listens while working/studying?",
@@ -35,14 +35,14 @@ ui <- fluidPage(
         choiceValues=c("all", "yes", "no"),
         selected = "all"
       ),
-      
+      br(),
       sliderInput(
         inputId = "pick_age",
         label = "Age:",
         min = 10, max = 90, step=5,
         value = c(20,40)
       ),
-      
+      br(),
       sliderInput(
         inputId = "pick_hrs",
         label = "Listing Hours per Day:",
@@ -59,7 +59,14 @@ ui <- fluidPage(
       tabsetPanel(
         type="tabs",
         #About Tab
-        tabPanel("About",card(tags$br(),"Hello!")),
+        tabPanel("About", br(),
+                 layout_columns(
+                   card("Background info..."),
+                   card("Citations..."),
+                   card("image"),
+                   col_widths = c(12,6,6)
+                 )
+                 ),
         
         #Data Download Tab
         tabPanel("Data Download"),
