@@ -37,16 +37,15 @@ ui <- page_fillable(
                     "Instrumentalist and Composer", 
                     "Instrumentalist Only", 
                     "Composer Only", 
-                    "Other/Non-Musicians"),
+                    "Other/Non-Musician"),
         selected = "Any"
       ),
       br(),
       radioButtons(
         inputId ="pick_work",
         label = "Listens while working/studying?",
-        choiceNames=c("All", "Yes", "No"),
-        choiceValues=c("all", "yes", "no"),
-        selected = "all"
+        choices=c("Any", "Yes", "No"),
+        selected = "Any"
       ),
       br(),
       sliderInput(
@@ -111,12 +110,29 @@ server <- function(input, output, session) {
   ### Data Subset ###
   #when pick_apply
  
+  mxmh_sub <- reactive({
+    
+    #filter by age and hour/day inputs
+    sub <- mxmh |>
+      filter(age >= input$pick_age[1] & age <= input$pick_age[2]) |>
+      filter(hours_per_day >= input$pick_hrs[1] & hours_per_day <= input$pick_hrs[2]) 
+    
+    #filter further (if needed)
+    if(input$pick_prof != "Any" & input$pick_work !="Any"){
+       filter(sub, musician == input$pick_prof & while_working == input$pick_work)
+    } else if (input$pick_prof != "Any" ){
+       filter(sub, musician == input$pick_prof)
+    } else if (input$pick_work !="Any"){
+       filter(sub, while_working == input$pick_work)
+    } else{ sub }
+    
+  })
  
   ### Data Download ###
   
   #Table Print
   output$table_download <- DT::renderDataTable({
-    mxmh
+    mxmh_sub()
   })
   
   #Download Action
@@ -125,7 +141,7 @@ server <- function(input, output, session) {
       paste('mxmh_data', Sys.Date(),'.csv', sep='')
     },
     content = function(con){
-      write.csv(mxmh, con)
+      write.csv(mxmh_sub(), con)
     }
   )
 
