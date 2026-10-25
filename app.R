@@ -1,4 +1,5 @@
 library(shiny)
+library(bslib)
 library(tidyverse)
 
 #-------------------------------------------------------------------------
@@ -11,9 +12,12 @@ library(tidyverse)
 #-------------------------------------------------------------------------
 ui <- fluidPage(
   
+  ## Title
   titlePanel("Music and Mental Health"),
   
   sidebarLayout(
+    
+    ## Sidebar + Widgets
     sidebarPanel(
       
       checkboxGroupInput(
@@ -48,7 +52,21 @@ ui <- fluidPage(
    
     ),
     
+    ## Main Panel
     mainPanel(
+      
+      ## Tab Structure
+      tabsetPanel(
+        type="tabs",
+        #About Tab
+        tabPanel("About",card(tags$br(),"Hello!")),
+        
+        #Data Download Tab
+        tabPanel("Data Download"),
+        
+        #Data Exploration Tab
+        tabPanel("Data Exploration")
+        )
       
     )
   )
