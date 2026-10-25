@@ -27,26 +27,41 @@ str(mxmh_raw)
 Basic data cleaning:
 
 - assign categorical data as factors (some ordinal)
-- drop permissions variable (all records granted permission)
+- derive `musician` status as a composite of `instrumentalist` and `composer`
+- drop `permissions` variable (all records granted permission)
+- drop `timestamp` variable (not relevant for analysis)
 
 ```{r}
 mxmh <- mxmh_raw |>
-  select(-permissions) |>
   mutate(
     #Nominal factors:
     primary_streaming_service = as.factor(primary_streaming_service),
     fav_genre =as.factor(fav_genre),
+    
     #Yes/No categorical:
     across(c("while_working", "instrumentalist", "composer", "exploratory", "foreign_languages"),
            function(x) factor(x, levels=c("Yes", "No"))),
+    
     #Freq categorical:
     across(starts_with("frequency_"),
            function(x) factor(x, levels=c("Never", "Rarely", "Sometimes", "Very frequently"), ordered=TRUE)),
+    
     #Effect categorical:
-    music_effects = factor(music_effects, levels=c("Improve", "No effect", "Worsen"), ordered=TRUE)
-  )
+    music_effects = factor(music_effects, levels=c("Improve", "No effect", "Worsen"), ordered=TRUE),
+    
+    #Derive musician status:
+    musician = case_when(
+      instrumentalist == "Yes" & composer== "Yes" ~ "Instrumentalist and Composer",
+      instrumentalist =="Yes"  ~ "Instrumentalist Only",
+      composer == "Yes"  ~ "Composer Only",
+      TRUE ~ "Other/Non-Musician")
+    ) |> 
+  select(-permissions, -timestamp)
 
 str(mxmh)
+
+#Check musician derivation:
+mxmh |> group_by(musician, instrumentalist, composer) |> summarize(n=n()) |> print()
 ```
 
 Save cleaned data to repo for future access:
@@ -54,7 +69,6 @@ Save cleaned data to repo for future access:
 ```{r}
 save(mxmh, file="data/mxmh.RData")
 ```
-
 
 ## Numeric EDA
 
@@ -113,7 +127,6 @@ mxmh |>
   select(vars, n, mean, sd, min, median, max )
 ```
 
-
 ## Visual EDA
 
 ### Histograms
@@ -127,7 +140,6 @@ ggplot(mxmh, aes(x=age, fill=frequency_classical)) +
   theme_minimal()
 ```
 
-
 ### Boxplots
 
 Takes 1 numeric variable and 1 categorical variable as x-axis grouping.
@@ -138,7 +150,6 @@ ggplot(mxmh, aes(x=frequency_classical, y=age, fill=frequency_classical)) +
   theme_minimal()
 ```
 
-
 **Scatterplot**
 
 WIP!! - find a different plot better suited for the data (e.g., means/SD plot)
@@ -147,7 +158,6 @@ WIP!! - find a different plot better suited for the data (e.g., means/SD plot)
 #ggplot(mxmh, aes(x=anxiety, y=ocd, group=composer)) +
 #  geom_point()
 ```
-
 
 ### Bar Charts
 
@@ -178,4 +188,3 @@ ggplot(for_tile, aes(x=frequency_classical, y=composer)) +
   geom_tile(aes(fill=count)) +
   theme_minimal()
 ```
-

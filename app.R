@@ -7,17 +7,11 @@ library(tidyverse)
 #-------------------------------------------------------------------------
 load("data/mxmh.RData")
 
-#Derive Musician index
-mxmh2 <- mxmh |>
-  mutate(musician = case_when(
-    instrumentalist == "Yes" & composer== "Yes" ~ "Instrumentalist and Composer",
-    instrumentalist =="Yes"  ~ "Instrumentalist Only",
-    composer == "Yes"  ~ "Composer Only",
-    TRUE ~ "Other/Non-Musician"))
-
-#Check derivation
-mxmh2 |> group_by(musician, instrumentalist, composer) |> 
-  summarize(n=n()) |> print()
+#Reorder columns for cleaner prints
+mxmh <- mxmh |>
+  select(musician, while_working, hours_per_day, age, 
+         fav_genre, exploratory, foreign_languages, bpm, primary_streaming_service,
+         starts_with("frequency"), everything() ) 
 
 
 #-------------------------------------------------------------------------
@@ -40,10 +34,10 @@ ui <- page_fillable(
         inputId = "pick_prof",
         label = "Respondent Musician Status:",
         choices = c("Any", 
-                        "Instrumentalist and Composer", 
-                        "Instrumentalist Only", 
-                        "Composer Only", 
-                        "Other/Non-Musicians"),
+                    "Instrumentalist and Composer", 
+                    "Instrumentalist Only", 
+                    "Composer Only", 
+                    "Other/Non-Musicians"),
         selected = "Any"
       ),
       br(),
@@ -56,18 +50,19 @@ ui <- page_fillable(
       ),
       br(),
       sliderInput(
-        inputId = "pick_age",
-        label = "Age:",
-        min = 10, max = 90, step=5,
-        value = c(20,60)
-      ),
-      br(),
-      sliderInput(
         inputId = "pick_hrs",
         label = "Listing Hours per Day:",
         min = 0, max = 24, step=2,
         value = c(0,24)
       ),
+      br(),
+      sliderInput(
+        inputId = "pick_age",
+        label = "Age:",
+        min = 10, max = 90, step=5,
+        value = c(20,60)
+      ),
+
       br(),
       actionButton("pick_apply","Apply Subset")
    
