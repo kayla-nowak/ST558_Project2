@@ -1,6 +1,9 @@
 library(shiny)
 library(bslib)
 library(tidyverse)
+library(ggplot2)
+
+source("helpers.R")
 
 #-------------------------------------------------------------------------
 # Data setup
@@ -17,7 +20,7 @@ mxmh <- mxmh |>
 #-------------------------------------------------------------------------
 # Define UI
 #-------------------------------------------------------------------------
-ui <- page_fillable(
+ui <- page_fluid(
   
   ## Title
   titlePanel("Music and Mental Health"),
@@ -93,12 +96,26 @@ ui <- page_fillable(
           ),
         
         #Data Exploration Tab
-        tabPanel("Data Exploration")
-        )
-      
-    )
-  )
-)
+        tabPanel(
+          "Data Exploration",
+          navset_bar(
+            nav_panel("Numeric Data"),
+            nav_panel(
+              "Categorical Data",
+              fluidRow(column(4, selectizeInput("cat1", "Primary Variable:", 
+                                                choices=vars_mh)),
+                       column(4, selectizeInput("cat2", "Secondary Variable:", 
+                                                choices=vars_lfbg))),
+              fluidRow(column(6, plotOutput(outputId = "barchart")),
+                       column(6, DT::dataTableOutput(outputId="table_cat1w")))
+            )
+          )
+          
+        ) #close Tab: Data Exploration
+      ) #close tabset
+    ) #close main
+  ) #close sidebar
+) #close ui
 
 
 #-------------------------------------------------------------------------
@@ -144,6 +161,30 @@ server <- function(input, output, session) {
     }
   )
 
+  
+  ### EDA: Categorical Tab ###
+  
+  observe({
+    print(input$cat1)
+  })
+  
+  #Contingency Table:
+  output$table_cat1w <- DT::renderDataTable({
+    
+    mxmh_sub() |> #using "data pronoun" syntax from ?enquo R documentation
+      drop_na(.data[[input$cat1]]) |>
+      group_by(.data[[input$cat1]]) |>
+      summarize(count=n(), .groups = "drop")
+      
+  })
+  
+  #Bar Chart:
+  output$barchart <- renderPlot({
+    
+    ggplot(mxmh_sub(), aes(x=.data[[input$cat1]])) +
+      geom_bar(aes(fill = .data[[input$cat2]]), position="dodge")
+    
+  })
   
 }
 
