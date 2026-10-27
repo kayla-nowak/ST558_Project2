@@ -95,7 +95,7 @@ source("helpers.R")
 
 ### Contingency Tables
 
-Use tidy summary methods with results stored in tibbles. This will simplify reporting on the app.
+Use tidy summary methods with results stored in tibbles to simplify reporting on the app.
 
 **One-Way:**
 
@@ -127,6 +127,7 @@ Again, use tidy methods with tibble result storage to simplify the app. I chose 
 ```{r}
 
 tab_sum <- mxmh |>
+  drop_na(frequency_classical) |>
   group_by(frequency_classical) |>
   select(frequency_classical, anxiety, age) |>
   summarize(across(where(is.numeric),
@@ -139,24 +140,18 @@ tab_sum <- mxmh |>
   )
 
 tab_sum
-
-#WIP!! psych option may be better for stacking
-#fyi, describe.by creates to a list with 1 df for each x 
-mxmh |>
-  select(anxiety, age) |>
-  psych::describe() |>
-  select(vars, n, mean, sd, min, median, max )
 ```
 
 ## Visual EDA
 
-### Histograms
+### Density Plots
 
 Takes 1 numeric variables, accepts 1 categorical variable as facet.
 
 ```{r}
-ggplot(mxmh, aes(x=age, fill=frequency_classical)) +
-  geom_histogram() +
+ggplot(mxmh |> drop_na(age, frequency_classical), 
+       aes(x=age, fill=frequency_classical)) +
+  geom_density() +
   facet_wrap(~ frequency_classical) +
   theme_minimal()
 ```
@@ -208,4 +203,18 @@ for_tile
 ggplot(for_tile, aes(x=frequency_classical, y=composer)) +
   geom_tile(aes(fill=count)) +
   theme_minimal()
+```
+
+
+
+##Sandbox: testing other display types
+
+Violin (alt. to boxplot)
+- good when cat has < 4 levels (LFBG are too messy)
+- could have with limited options
+
+```{r}
+ggplot(mxmh |> drop_na(music_effects),
+       aes(x=music_effects, y=ocd, fill=music_effects)) +
+  geom_violin()
 ```

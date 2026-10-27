@@ -107,7 +107,7 @@ ui <- page_fluid(
                        column(4, selectizeInput("cross", 
                                                 label="Grouping Variable:", 
                                                 choices=c(vars_lfbg,vars_oth_c)))),
-              plotOutput(outputId = "histogram"),
+              plotOutput(outputId = "density"),
               DT::dataTableOutput(outputId="table_num")
             ),
             nav_panel(
@@ -193,14 +193,15 @@ server <- function(input, output, session) {
       )
   })
   
-  #Histogram:
-  output$histogram <- renderPlot({
+  #Density:
+  output$density <- renderPlot({
     
     ggplot(mxmh_sub() |> drop_na(.data[[input$num1]],.data[[input$cross]]), 
            aes(x=.data[[input$num1]], fill=.data[[input$cross]])) +
-      geom_histogram() +
+      geom_density() +
       facet_wrap(~ .data[[input$cross]]) +
       labs(x = names(vars_all[which(vars_all==input$num1)])) +
+      scale_fill_discrete(names(vars_all[which(vars_all==input$cross)])) +
       theme_minimal()
       
   })
