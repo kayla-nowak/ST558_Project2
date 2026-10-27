@@ -99,15 +99,25 @@ ui <- page_fluid(
         tabPanel(
           "Data Exploration",
           navset_bar(
-            nav_panel("Numeric Data"),
+            nav_panel(
+              "Numeric Data",
+              fluidRow(column(4, selectizeInput("num1", 
+                                                label="Primary Variable:", 
+                                                choices=c(vars_mh,vars_oth_n))),
+                       column(4, selectizeInput("cross", 
+                                                label="Grouping Variable:", 
+                                                choices=c(vars_lfbg,vars_oth_c)))),
+              plotOutput(outputId = "histogram"),
+              DT::dataTableOutput(outputId="table_num")
+            ),
             nav_panel(
               "Categorical Data",
               fluidRow(column(4, selectizeInput("cat1", 
                                                 label="Primary Variable:", 
-                                                choices=vars_mh)),
+                                                choices=vars_lfbg)),
                        column(4, selectizeInput("cat2", 
                                                 label="Secondary Variable:", 
-                                                choices=c("--",vars_lfbg)))),
+                                                choices=c("--",vars_oth_c)))),
               plotOutput(outputId = "barchart"),
               DT::dataTableOutput(outputId="table_cat")
             )
@@ -164,12 +174,40 @@ server <- function(input, output, session) {
   )
 
   
-  ### EDA: Categorical Tab ###
+  ### EDA: Numeric Tab ###
   
-  observe({
-    print(input$cat1)
+  #Summary Table:
+  output$table_num<- DT::renderDataTable({
+
+    mxmh_sub() |>
+      group_by(.data[[input$cross]]) |>
+      select(.data[[input$cross]], .data[[input$num1]]) |>
+      drop_na(.data[[input$num1]],.data[[input$cross]]) |>
+      summarize(across(where(is.numeric),
+                       list("Mean"   = ~ mean(.x, na.rm = TRUE),
+                            "SD"     = ~ sd(.x, na.rm = TRUE),
+                            "Min"    = ~ min(.x, na.rm = TRUE),
+                            "Median" = ~ median(.x, na.rm = TRUE),
+                            "Max"    = ~ max(.x, na.rm = TRUE)),
+                       .names = "{.fn}")
+      )
   })
   
+  #Histogram:
+  output$histogram <- renderPlot({
+    
+    ggplot(mxmh_sub() |> drop_na(.data[[input$num1]],.data[[input$cross]]), 
+           aes(x=.data[[input$num1]], fill=.data[[input$cross]])) +
+      geom_histogram() +
+      facet_wrap(~ .data[[input$cross]]) +
+      labs(x = names(vars_all[which(vars_all==input$num1)])) +
+      theme_minimal()
+      
+  })
+  
+  
+  ### EDA: Categorical Tab ###
+
   #Contingency Table (1-way):
   output$table_cat <- DT::renderDataTable({
     
@@ -206,16 +244,16 @@ server <- function(input, output, session) {
       
       ggplot(mxmh_sub(), aes(x=.data[[input$cat1]])) +
         geom_bar() +
-        labs(x = names(vars_all[which(vars_all==input$cat1)]))
+        labs(x = names(vars_all[which(vars_all==input$cat1)])) +
+        theme_minimal()
       
     } else{  #Two-Way:
       
       ggplot(mxmh_sub(), aes(x=.data[[input$cat1]])) +
         geom_bar(aes(fill = .data[[input$cat2]]), position="dodge") +
         labs(x= names(vars_all[which(vars_all==input$cat1)]))+
-        scale_fill_discrete(names(vars_all[which(vars_all==input$cat2)]))
-
-    
+        scale_fill_discrete(names(vars_all[which(vars_all==input$cat2)])) +
+        theme_minimal()
     }
   })
   
