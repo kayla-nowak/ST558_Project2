@@ -32,19 +32,24 @@ vars_mh <- c(
   "Self-Reported OCD"         = "ocd"
 )
 
-#All Other Variables
-vars_oth <- c(
-"Respondent's Age (years)"                    = "age", 
+#Other Numeric Variables
+vars_oth_n <-c(
+  "Respondent's Age (years)" = "age", 
+  "Beats per Minute (bpm) of favorite genre" = "bpm",
+  "Daily listening frequency (hours per day)" = "hours_per_day"
+)
+
+#Other Categorical Variables
+vars_oth_c <- c(
 "Respondent's favorite genre"                 = "fav_genre", 
-"Beats per Minute (bpm) of favorite genre"    = "bpm",
 "Primary streaming service"                   = "primary_streaming_service", 
-"Daily listening frequency (hours per day)"   = "hours_per_day",
 "Listens while working/studying"              = "while_working",
 "Respondent regularly plays an instrument"    = "instrumentalist", 
 "Respondent regularly composes music"         = "composer", 
-"Respondent regularly explores new artists/genres"          = "exploratory",
+"Respondent regularly explores new artists/genres"  = "exploratory",
 "Respondent regularly listens to music in another language" ="foreign_languages" , 
-"Perceived impact of music on mental health"                =   "music_effects"
+"Perceived impact of music on mental health" =   "music_effects"
 )
 
+vars_all <- c(vars_lfbg, vars_mh, vars_oth_n, vars_oth_c)
 

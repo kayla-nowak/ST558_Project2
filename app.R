@@ -4,7 +4,6 @@ library(tidyverse)
 library(ggplot2)
 
 source("helpers.R")
-vars_all <- c(vars_lfbg, vars_mh, vars_oth)
 
 #-------------------------------------------------------------------------
 # Data setup
