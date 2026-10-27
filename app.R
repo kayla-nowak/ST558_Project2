@@ -82,8 +82,11 @@ ui <- page_fluid(
           "About", br(),
           layout_columns(
             card("Background info..."),
-            card("Citations..."),
-            card("image"),
+            card("Data Source: Music & Mental Health Survey by Catherine Rasgaitis, 2022.",
+                 tags$a("Available on Kaggle.com", href = "https://www.kaggle.com/datasets/catherinerasgaitis/mxmh-survey-results?select=mxmh_survey_results.csv"),
+                 "Data Accessed by Kayla Nowak,2026-10-20",
+                 tags$i("For educational purposes only.")),
+            card(tags$img(src="mxmh_logo.png")),
             col_widths = c(12,6,6)
             )
           ),
@@ -156,6 +159,7 @@ server <- function(input, output, session) {
     
   })
  
+  
   ### Data Download ###
   
   #Table Print
