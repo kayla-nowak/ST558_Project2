@@ -21,7 +21,13 @@ Convert to R-friendly variable names using the `janitor` package, and force data
 ```{r}
 mxmh_raw <- read_csv("data/mxmh_survey_results.csv")
 mxmh_raw <- janitor::clean_names(as_tibble(mxmh_raw))
+```
+
+First glance at raw data:
+
+```{r}
 str(mxmh_raw)
+psych::describe(mxmh_raw) |> select(n, min, max, mean)
 ```
 
 Basic data cleaning:
@@ -61,7 +67,8 @@ mxmh <- mxmh_raw |>
 str(mxmh)
 
 #Check musician derivation:
-mxmh |> group_by(musician, instrumentalist, composer) |> summarize(n=n()) |> print()
+mxmh |> group_by(musician, instrumentalist, composer) |> 
+  summarize(n=n(), .groups = "drop") |> print()
 ```
 
 Save cleaned data to repo for future access:
@@ -70,13 +77,27 @@ Save cleaned data to repo for future access:
 save(mxmh, file="data/mxmh.RData")
 ```
 
+## Helper File
+
+This project includes a `helper.R` file, which defines core reference objects to be used across the project. The helper file is stored separately in the repository and included as a source file for this static EDA and the app.
+
+- `vars_lfbg` is a vector of all the "listening frequency by genre" variable names. These variables are all ordinal categorical: Never (1) \< Rarely (2) \< Sometimes (3) \< Very frequently (4).
+
+- `vars_mh` is vector of all the "self-reported mental health" variable names. These variables are numeric with range 0-10 (0 = "I do not experience this", 10 = "I experience this regularly, constantly/or to an extreme").
+
+- `vars_oth` is a vector of all other variables on the dataset.
+
+```{r}
+source("helpers.R")
+```
+
 ## Numeric EDA
 
 ### Contingency Tables
 
 Use tidy summary methods with results stored in tibbles. This will simplify reporting on the app.
 
-One-Way:
+**One-Way:**
 
 ```{r}
 tab_one <- mxmh |> 
@@ -87,7 +108,7 @@ tab_one <- mxmh |>
 tab_one
 ```
 
-Two-Way:
+**Two-Way:**
 
 ```{r}
 tab_two <- mxmh |> 

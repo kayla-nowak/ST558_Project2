@@ -4,6 +4,7 @@ library(tidyverse)
 library(ggplot2)
 
 source("helpers.R")
+vars_all <- c(vars_lfbg, vars_mh, vars_oth)
 
 #-------------------------------------------------------------------------
 # Data setup
@@ -102,12 +103,14 @@ ui <- page_fluid(
             nav_panel("Numeric Data"),
             nav_panel(
               "Categorical Data",
-              fluidRow(column(4, selectizeInput("cat1", "Primary Variable:", 
+              fluidRow(column(4, selectizeInput("cat1", 
+                                                label="Primary Variable:", 
                                                 choices=vars_mh)),
-                       column(4, selectizeInput("cat2", "Secondary Variable:", 
-                                                choices=vars_lfbg))),
-              fluidRow(column(6, plotOutput(outputId = "barchart")),
-                       column(6, DT::dataTableOutput(outputId="table_cat1w")))
+                       column(4, selectizeInput("cat2", 
+                                                label="Secondary Variable:", 
+                                                choices=c("--",vars_lfbg)))),
+              plotOutput(outputId = "barchart"),
+              DT::dataTableOutput(outputId="table_cat")
             )
           )
           
@@ -168,22 +171,53 @@ server <- function(input, output, session) {
     print(input$cat1)
   })
   
-  #Contingency Table:
-  output$table_cat1w <- DT::renderDataTable({
+  #Contingency Table (1-way):
+  output$table_cat <- DT::renderDataTable({
     
-    mxmh_sub() |> #using "data pronoun" syntax from ?enquo R documentation
-      drop_na(.data[[input$cat1]]) |>
-      group_by(.data[[input$cat1]]) |>
-      summarize(count=n(), .groups = "drop")
+    if(input$cat2=="--") {  #One-Way:
+      
+      tab <- mxmh_sub() |>
+        drop_na(.data[[input$cat1]]) |>
+        group_by(.data[[input$cat1]]) |>
+        summarize(Count=n(), .groups = "drop") |>
+        pivot_wider(names_from = .data[[input$cat1]], 
+                    values_from=Count,
+                    values_fill=0)    
+      
+    } else {  #Two-Way:
+      
+      tab <- mxmh_sub() |>
+        drop_na(.data[[input$cat1]], .data[[input$cat2]]) |>
+        group_by(.data[[input$cat1]], .data[[input$cat2]]) |>
+        summarize(Count=n(), .groups = "drop")|>
+        pivot_wider(names_from = .data[[input$cat1]], 
+                    values_from=Count,
+                    values_fill=0) 
+    }
+    
+    tab
       
   })
+  
   
   #Bar Chart:
   output$barchart <- renderPlot({
     
-    ggplot(mxmh_sub(), aes(x=.data[[input$cat1]])) +
-      geom_bar(aes(fill = .data[[input$cat2]]), position="dodge")
+    if(input$cat2=="--") {  #One-Way:
+      
+      ggplot(mxmh_sub(), aes(x=.data[[input$cat1]])) +
+        geom_bar() +
+        labs(x = names(vars_all[which(vars_all==input$cat1)]))
+      
+    } else{  #Two-Way:
+      
+      ggplot(mxmh_sub(), aes(x=.data[[input$cat1]])) +
+        geom_bar(aes(fill = .data[[input$cat2]]), position="dodge") +
+        labs(x= names(vars_all[which(vars_all==input$cat1)]))+
+        scale_fill_discrete(names(vars_all[which(vars_all==input$cat2)]))
+
     
+    }
   })
   
 }
