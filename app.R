@@ -180,9 +180,9 @@ server <- function(input, output, session) {
   output$table_num<- DT::renderDataTable({
 
     mxmh_sub() |>
-      group_by(.data[[input$cross]]) |>
-      select(.data[[input$cross]], .data[[input$num1]]) |>
-      drop_na(.data[[input$num1]],.data[[input$cross]]) |>
+      group_by(.data[[input$cross]]) |>  #requires data pronoun
+      select(input$cross, input$num1) |>
+      drop_na(input$num1, input$cross) |>
       summarize(across(where(is.numeric),
                        list("Mean"   = ~ round(mean(.x, na.rm = TRUE), digits=1),
                             "SD"     = ~ round(sd(.x, na.rm = TRUE), digits=2),
@@ -196,44 +196,39 @@ server <- function(input, output, session) {
   #Density:
   output$density <- renderPlot({
     
-    ggplot(mxmh_sub() |> drop_na(.data[[input$num1]],.data[[input$cross]]), 
-           aes(x=.data[[input$num1]], fill=.data[[input$cross]])) +
+    ggplot(mxmh_sub() |> drop_na(input$num1,input$cross), 
+           aes_string(x=input$num1, fill=input$cross)) +
       geom_density() +
-      facet_wrap(~ .data[[input$cross]]) +
+      facet_wrap(~ .data[[input$cross]]) + #requires data pronoun
       labs(x = names(vars_all[which(vars_all==input$num1)])) +
       scale_fill_discrete(names(vars_all[which(vars_all==input$cross)])) +
       theme_minimal()
       
   })
-  
+
   
   ### EDA: Categorical Tab ###
+
 
   #Contingency Table (1-way):
   output$table_cat <- DT::renderDataTable({
     
     if(input$cat2=="--") {  #One-Way:
       
-      tab <- mxmh_sub() |>
-        drop_na(.data[[input$cat1]]) |>
-        group_by(.data[[input$cat1]]) |>
-        summarize(Count=n(), .groups = "drop") |>
-        pivot_wider(names_from = .data[[input$cat1]], 
-                    values_from=Count,
-                    values_fill=0)    
-      
+      tab <- mxmh_sub() |> 
+        drop_na(input$cat1) |>
+        select(input$cat1)  |> 
+        table() 
+    
     } else {  #Two-Way:
       
-      tab <- mxmh_sub() |>
-        drop_na(.data[[input$cat1]], .data[[input$cat2]]) |>
-        group_by(.data[[input$cat1]], .data[[input$cat2]]) |>
-        summarize(Count=n(), .groups = "drop")|>
-        pivot_wider(names_from = .data[[input$cat1]], 
-                    values_from=Count,
-                    values_fill=0) 
+      tab <- mxmh_sub() |> 
+        drop_na(input$cat1,input$cat2) |>
+        select(input$cat1,input$cat2)  |> 
+        table()
     }
     
-    tab
+    as.data.frame(tab) #needed for render, but forces to tall...
       
   })
   
@@ -241,7 +236,7 @@ server <- function(input, output, session) {
   #Bar Chart:
   output$barchart <- renderPlot({
     
-    g_chart <- ggplot(mxmh_sub(), aes(x=.data[[input$cat1]]))+
+    g_chart <- ggplot(mxmh_sub(), aes_string(x=input$cat1)) +
       labs(x = names(vars_all[which(vars_all==input$cat1)])) +
       theme_minimal()
 
@@ -251,7 +246,7 @@ server <- function(input, output, session) {
       
     } else{  #Two-Way:
       
-      g_chart + geom_bar(aes(fill = .data[[input$cat2]]), position="dodge") +
+      g_chart + geom_bar(aes_string(fill = input$cat2), position="dodge") +
          scale_fill_discrete(names(vars_all[which(vars_all==input$cat2)]))
     }
   })
