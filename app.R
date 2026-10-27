@@ -104,13 +104,16 @@ ui <- page_fluid(
           navset_bar(
             nav_panel(
               "Numeric Data",
-              fluidRow(column(4, selectizeInput("num1", 
+              fluidRow(column(5, selectizeInput("num1", 
                                                 label="Primary Variable:", 
                                                 choices=c(vars_mh,vars_oth_n))),
-                       column(4, selectizeInput("cross", 
+                       column(5, selectizeInput("cross", 
                                                 label="Grouping Variable:", 
-                                                choices=c(vars_lfbg,vars_oth_c)))),
-              plotOutput(outputId = "density"),
+                                                choices=c(vars_lfbg,vars_oth_c))),
+                       column(2, radioButtons("pick_plot_n",
+                                            label="Plot Type:",
+                                            choices=c("Density", "Boxplot")))),
+              plotOutput(outputId = "plot_num"),
               DT::dataTableOutput(outputId="table_num")
             ),
             nav_panel(
@@ -197,17 +200,33 @@ server <- function(input, output, session) {
       )
   })
   
-  #Density:
-  output$density <- renderPlot({
+  #Numeric Plots:
+  output$plot_num <- renderPlot({
     
-    ggplot(mxmh_sub() |> drop_na(input$num1,input$cross), 
-           aes_string(x=input$num1, fill=input$cross)) +
-      geom_density() +
-      facet_wrap(~ .data[[input$cross]]) + #requires data pronoun
+    n_base <- ggplot(mxmh_sub() |> drop_na(input$num1,input$cross), 
+                     aes_string(x=input$num1, fill=input$cross)) +
       labs(x = names(vars_all[which(vars_all==input$num1)])) +
       scale_fill_discrete(names(vars_all[which(vars_all==input$cross)])) +
-      theme_minimal()
+      theme_minimal() 
+    
+    if(input$pick_plot_n=="Density"){
       
+      n_plot <- n_base + geom_density() +
+        facet_wrap(~ .data[[input$cross]]) #requires data pronoun
+      
+    } else if (input$pick_plot_n=="Boxplot"){
+      
+      n_plot <- ggplot(mxmh_sub() |> drop_na(input$num1,input$cross),  
+                       aes_string(x=input$cross, y=input$num1, fill=input$cross)) +
+        geom_boxplot() + 
+        labs(x = names(vars_all[which(vars_all==input$cross)]),
+             y = names(vars_all[which(vars_all==input$num1)])) +
+        scale_fill_discrete(names(vars_all[which(vars_all==input$cross)])) +
+        theme_minimal()
+    }
+    
+    n_plot
+    
   })
 
   
