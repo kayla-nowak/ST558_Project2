@@ -184,8 +184,8 @@ server <- function(input, output, session) {
       select(.data[[input$cross]], .data[[input$num1]]) |>
       drop_na(.data[[input$num1]],.data[[input$cross]]) |>
       summarize(across(where(is.numeric),
-                       list("Mean"   = ~ mean(.x, na.rm = TRUE),
-                            "SD"     = ~ sd(.x, na.rm = TRUE),
+                       list("Mean"   = ~ round(mean(.x, na.rm = TRUE), digits=1),
+                            "SD"     = ~ round(sd(.x, na.rm = TRUE), digits=2),
                             "Min"    = ~ min(.x, na.rm = TRUE),
                             "Median" = ~ median(.x, na.rm = TRUE),
                             "Max"    = ~ max(.x, na.rm = TRUE)),
@@ -240,20 +240,18 @@ server <- function(input, output, session) {
   #Bar Chart:
   output$barchart <- renderPlot({
     
+    g_chart <- ggplot(mxmh_sub(), aes(x=.data[[input$cat1]]))+
+      labs(x = names(vars_all[which(vars_all==input$cat1)])) +
+      theme_minimal()
+
     if(input$cat2=="--") {  #One-Way:
       
-      ggplot(mxmh_sub(), aes(x=.data[[input$cat1]])) +
-        geom_bar() +
-        labs(x = names(vars_all[which(vars_all==input$cat1)])) +
-        theme_minimal()
+      g_chart + geom_bar() 
       
     } else{  #Two-Way:
       
-      ggplot(mxmh_sub(), aes(x=.data[[input$cat1]])) +
-        geom_bar(aes(fill = .data[[input$cat2]]), position="dodge") +
-        labs(x= names(vars_all[which(vars_all==input$cat1)]))+
-        scale_fill_discrete(names(vars_all[which(vars_all==input$cat2)])) +
-        theme_minimal()
+      g_chart + geom_bar(aes(fill = .data[[input$cat2]]), position="dodge") +
+         scale_fill_discrete(names(vars_all[which(vars_all==input$cat2)]))
     }
   })
   
@@ -264,4 +262,3 @@ server <- function(input, output, session) {
 # Run app
 #-------------------------------------------------------------------------
 shinyApp(ui = ui, server = server)
-
