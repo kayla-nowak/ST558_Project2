@@ -1,5 +1,6 @@
 library(shiny)
 library(bslib)
+library(shinyalert)
 library(tidyverse)
 library(ggplot2)
 
@@ -189,11 +190,16 @@ server <- function(input, output, session) {
   
   #Table Print
   output$table_download <- DT::renderDataTable({
-    mxmh_sub()
+      mxmh_sub()
   })
   
   #Download Action
   output$downloadData <- downloadHandler(
+    
+    # Loading message
+    validate( need(input$pick_apply, #boolean?
+                   message="Please click 'Apply subset' on the sidebar to generate data.")),
+    
     filename = function(){
       paste('mxmh_data', Sys.Date(),'.csv', sep='')
     },
@@ -225,6 +231,9 @@ server <- function(input, output, session) {
   #Numeric Plots:
   output$plot_num <- renderPlot({
     
+    # Loading message
+    validate( need(input$pick_apply,
+                   message="Please click 'Apply subset' on the sidebar to generate data."))    
     n_base <- ggplot(mxmh_sub() |> drop_na(input$num1,input$cross), 
                      aes_string(x=input$num1, fill=input$cross)) +
       labs(x = names(vars_all[which(vars_all==input$num1)])) +
@@ -283,6 +292,10 @@ server <- function(input, output, session) {
   
   #Categorical Plots:
   output$plot_cat <- renderPlot({
+    
+    # Loading message
+    validate( need(input$pick_apply,
+                   message="Please click 'Apply subset' on the sidebar to generate data."))
     
     # Bar Chart | Heatmap:
     if(input$pick_plot_c=="Bar Chart"){
