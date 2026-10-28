@@ -28,7 +28,7 @@ ui <- page_fluid(
   
   sidebarLayout(
     
-    ## Sidebar + Widgets
+    ##---- Sidebar + Widgets ----
     sidebarPanel(
       
       "Select from the following data subsets, and then click 'Apply Subset' to update the data accordingly.",
@@ -71,14 +71,14 @@ ui <- page_fluid(
    
     ),
     
-    ## Main Panel
+    ##---- Main Panel ----
     mainPanel(
       
       ## Tab Structure
       tabsetPanel(
         type="tabs",
         
-        #About Tab
+        # ++ About Tab ++
         tabPanel(
           "About", br(),
           layout_columns(
@@ -101,24 +101,17 @@ Please click “Apply Subset” to generate the desired data subset. To change t
                  tags$p(tags$em("Numeric Data"), " offers 1 numeric variable and 1 categorical (grouping) variable for exploration. The user may choose either a density plot or boxplot graphical summary. The numeric summary is a table of mean, standard deviation, minimum, median, and maximum for the numeric variable at each level of the categorical variable."),
                  
                  tags$p(tags$em("Categorical Data"), ' accepts up to 2 categorical variables for exploration. The user may choose either a bar chart or heatmap graphical summary; the numeric summary is a contingency table. For single-variable exploration, leave the secondary variable input set to "--". ')),
-            
-            #--Reference Card--
-            
-            
-            #--Logo Card--
-            
-            col_widths = c(8,4,12)
-            )
+            col_widths = c(8,4,12))
           ),
         
-        #Data Download Tab
+        # ++ Data Download Tab ++
         tabPanel(
           "Data Download",
           card(downloadLink("downloadData", "Download as CSV")),
           DT::dataTableOutput(outputId="table_download")
           ),
         
-        #Data Exploration Tab
+        # ++ Data Exploration Tab ++
         tabPanel(
           "Data Exploration",
           navset_bar(
@@ -129,7 +122,7 @@ Please click “Apply Subset” to generate the desired data subset. To change t
                                                 choices=c(vars_mh,vars_oth_n))),
                        column(5, selectizeInput("cross", 
                                                 label="Grouping Variable:", 
-                                                choices=c(vars_lfbg,vars_oth_c))),
+                                                choices=c("--",vars_lfbg,vars_oth_c))),
                        column(2, radioButtons("pick_plot_n",
                                             label="Plot Type:",
                                             choices=c("Density", "Boxplot")))),
@@ -213,11 +206,25 @@ server <- function(input, output, session) {
   
   #Summary Table:
   output$table_num<- DT::renderDataTable({
-
-    mxmh_sub() |>
-      group_by(.data[[input$cross]]) |>  #requires data pronoun
-      select(input$cross, input$num1) |>
-      drop_na(input$num1, input$cross) |>
+    
+    if(input$cross=="--") {
+      
+      #Prep data for overall summary:
+      for_numtab <- mxmh_sub() |> 
+        select(input$num1) |>
+        drop_na(input$num1)
+      
+    } else {
+      
+      #Prep data for by-category summary:
+      for_numtab <- mxmh_sub() |> 
+        select(input$num1, input$cross) |>
+        drop_na(input$num1, input$cross) |>
+        group_by(.data[[input$cross]])    #group_by requires data pronoun syntax
+      
+    }
+    
+    for_numtab |> 
       summarize(across(where(is.numeric),
                        list("Mean"   = ~ round(mean(.x, na.rm = TRUE), digits=1),
                             "SD"     = ~ round(sd(.x, na.rm = TRUE), digits=2),
@@ -226,6 +233,7 @@ server <- function(input, output, session) {
                             "Max"    = ~ max(.x, na.rm = TRUE)),
                        .names = "{.fn}")
       )
+      
   })
   
   #Numeric Plots:
@@ -233,28 +241,48 @@ server <- function(input, output, session) {
     
     # Loading message
     validate( need(input$pick_apply,
-                   message="Please click 'Apply subset' on the sidebar to generate data."))    
-    n_base <- ggplot(mxmh_sub() |> drop_na(input$num1,input$cross), 
-                     aes_string(x=input$num1, fill=input$cross)) +
-      labs(x = names(vars_all[which(vars_all==input$num1)])) +
-      scale_fill_discrete(names(vars_all[which(vars_all==input$cross)])) +
-      theme_minimal() 
+                   message="Please click 'Apply subset' on the sidebar to generate data."))
     
     # Density | Boxplot:
     if(input$pick_plot_n=="Density"){ 
       
-      n_plot <- n_base + geom_density() +
-        facet_wrap(~ .data[[input$cross]]) #requires data pronoun
+      if(input$cross=="--"){  #Single Variable
+        n_plot <- ggplot(mxmh_sub() |> drop_na(input$num1), 
+                         aes_string(x=input$num1, color=input$num1,)) +
+          labs(x = names(vars_all[which(vars_all==input$num1)])) +
+          geom_density(fill="#00BFC4") +
+          theme_minimal()
+        
+      } else{   #By Category
+        n_plot <- ggplot(mxmh_sub() |> drop_na(input$num1,input$cross), 
+                         aes_string(x=input$num1,fill=input$cross)) +
+          labs(x = names(vars_all[which(vars_all==input$num1)])) +
+          scale_fill_discrete(names(vars_all[which(vars_all==input$cross)])) +
+          geom_density() +
+          facet_wrap(~ .data[[input$cross]]) + #requires data pronoun
+          theme_minimal()
+      }
       
-    } else if (input$pick_plot_n=="Boxplot"){ 
+    } else if (input$pick_plot_n=="Boxplot"){
       
-      n_plot <- ggplot(mxmh_sub() |> drop_na(input$num1,input$cross),  
-                       aes_string(x=input$cross, y=input$num1, fill=input$cross)) +
-        geom_boxplot() + 
-        labs(x = names(vars_all[which(vars_all==input$cross)]),
-             y = names(vars_all[which(vars_all==input$num1)])) +
-        scale_fill_discrete(names(vars_all[which(vars_all==input$cross)])) +
-        theme_minimal()
+      if(input$cross=="--"){  #Single Variable
+        n_plot <- ggplot(mxmh_sub() |> drop_na(input$num1),  
+                         aes_string(x=input$num1 )) +
+          labs(x = names(vars_all[which(vars_all==input$num1)])) +         
+          geom_boxplot(width=0.2, fill="#00BFC4") + 
+          coord_flip() +scale_y_discrete() +  #for univariate only
+          theme_minimal() 
+        
+      } else {  #By Category
+        n_plot <- ggplot(mxmh_sub() |> drop_na(input$num1,input$cross),  
+                         aes_string(x=input$cross, y=input$num1, fill=input$cross)) +
+          geom_boxplot() + 
+          labs(x = names(vars_all[which(vars_all==input$cross)]),
+               y = names(vars_all[which(vars_all==input$num1)])) +
+          scale_fill_discrete(names(vars_all[which(vars_all==input$cross)])) +
+          theme_minimal()
+      }
+      
     }
     
     n_plot
@@ -263,7 +291,6 @@ server <- function(input, output, session) {
 
   
   ### EDA: Categorical Tab ###
-
 
   #Contingency Table:
   output$table_cat <- DT::renderDataTable({
