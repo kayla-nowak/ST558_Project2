@@ -123,8 +123,11 @@ ui <- page_fluid(
                                                 choices=vars_lfbg)),
                        column(4, selectizeInput("cat2", 
                                                 label="Secondary Variable:", 
-                                                choices=c("--",vars_oth_c)))),
-              plotOutput(outputId = "barchart"),
+                                                choices=c("--",vars_oth_c))),
+                       column(4, radioButtons("pick_plot_c",
+                                              label="Plot Type:",
+                                              choices=c("Bar Chart", "Heatmap")))),
+              plotOutput(outputId = "plot_cat"),
               DT::dataTableOutput(outputId="table_cat")
             )
           )
@@ -209,12 +212,13 @@ server <- function(input, output, session) {
       scale_fill_discrete(names(vars_all[which(vars_all==input$cross)])) +
       theme_minimal() 
     
-    if(input$pick_plot_n=="Density"){
+    # Density | Boxplot:
+    if(input$pick_plot_n=="Density"){ 
       
       n_plot <- n_base + geom_density() +
         facet_wrap(~ .data[[input$cross]]) #requires data pronoun
       
-    } else if (input$pick_plot_n=="Boxplot"){
+    } else if (input$pick_plot_n=="Boxplot"){ 
       
       n_plot <- ggplot(mxmh_sub() |> drop_na(input$num1,input$cross),  
                        aes_string(x=input$cross, y=input$num1, fill=input$cross)) +
@@ -233,7 +237,7 @@ server <- function(input, output, session) {
   ### EDA: Categorical Tab ###
 
 
-  #Contingency Table (1-way):
+  #Contingency Table:
   output$table_cat <- DT::renderDataTable({
     
     if(input$cat2=="--") {  #One-Way:
@@ -245,9 +249,11 @@ server <- function(input, output, session) {
     
     } else {  #Two-Way:
       
-      tab <- mxmh_sub() |> 
+      #req(input$cat1, input$cat2)
+      #tab <- table(mxmh_sub()[[input$cat1]],mxmh_sub()[[input$cat2]])
+      tab <- mxmh_sub() |>
         drop_na(input$cat1,input$cat2) |>
-        select(input$cat1,input$cat2)  |> 
+        select(input$cat1,input$cat2)  |>
         table()
     }
     
@@ -256,22 +262,41 @@ server <- function(input, output, session) {
   })
   
   
-  #Bar Chart:
-  output$barchart <- renderPlot({
+  #Categorical Plots:
+  output$plot_cat <- renderPlot({
     
-    g_chart <- ggplot(mxmh_sub(), aes_string(x=input$cat1)) +
-      labs(x = names(vars_all[which(vars_all==input$cat1)])) +
-      theme_minimal()
+    # Bar Chart | Heatmap:
+    if(input$pick_plot_c=="Bar Chart"){
+    
+      g_chart <- ggplot(mxmh_sub(), aes_string(x=input$cat1)) +
+        labs(x = names(vars_all[which(vars_all==input$cat1)])) +
+        theme_minimal()
+  
+      if(input$cat2=="--") {  #One-Way:
+        c_plot <- g_chart +
+          geom_bar() 
+        
+      } else{  #Two-Way:
+        c_plot <- g_chart + 
+          geom_bar(aes_string(fill = input$cat2), position="dodge") +
+          scale_fill_discrete(names(vars_all[which(vars_all==input$cat2)]))
+        
+      }
+    } else if (input$pick_plot_c=="Heatmap"){
+      
+      tab <- table(mxmh_sub()[[input$cat1]],mxmh_sub()[[input$cat2]])
+      
+      c_plot <- ggplot(as.data.frame(tab), aes(x=Var1, y=Var2, fill=Freq)) +
+        geom_tile(color="black") +
+        scale_fill_gradient(low="white", high="#006b4e") +
+        labs(x = names(vars_all[which(vars_all==input$cat1)]),
+              y = names(vars_all[which(vars_all==input$cat2)])) +
+        theme_minimal()
 
-    if(input$cat2=="--") {  #One-Way:
-      
-      g_chart + geom_bar() 
-      
-    } else{  #Two-Way:
-      
-      g_chart + geom_bar(aes_string(fill = input$cat2), position="dodge") +
-         scale_fill_discrete(names(vars_all[which(vars_all==input$cat2)]))
     }
+    
+    c_plot
+    
   })
   
 }

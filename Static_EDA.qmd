@@ -146,7 +146,7 @@ tab_sum
 
 ### Density Plots
 
-Takes 1 numeric variables, accepts 1 categorical variable as facet.
+Takes 1 numeric variables, and accepts 1 categorical variable as facet.
 
 ```{r}
 ggplot(mxmh |> drop_na(age, frequency_classical), 
@@ -166,55 +166,44 @@ ggplot(mxmh, aes(x=frequency_classical, y=age, fill=frequency_classical)) +
   theme_minimal()
 ```
 
-**Scatterplot**
-
-WIP!! - find a different plot better suited for the data (e.g., means/SD plot)
-
-```{r}
-#ggplot(mxmh, aes(x=anxiety, y=ocd, group=composer)) +
-#  geom_point()
-```
-
 ### Bar Charts
 
-Frequency bar chart for 1 categorical variable + 1 grouping categorical variables.
+Frequency bar charts for 1-2 categorical variables. 
+
+If a second categorical variable is provided, that variable serves as a grouping effect for side-by-side bar chart layout.
+
+**One-way:**
 
 ```{r}
 ggplot(mxmh, aes(x=frequency_classical)) +
-  geom_bar(aes(fill=composer), position="dodge")
+  geom_bar() + 
+  theme_minimal()
+```
+
+**Two-way:**
+
+```{r}
+ggplot(mxmh, aes(x=frequency_classical)) +
+  geom_bar(aes(fill=composer), position="dodge")+ 
+  theme_minimal()
 ```
 
 ### Heatmap
 
-Frequency density for a two-variable crosstab (use tab_two results).
-
-WIP!! - %s probably better, also integrate with tab_two
+A visualization of frequency density for a contingency table. Plotted on a monochromatic scale: lighter shading for lower frequency, darker shading for higher frequency. 
 
 ```{r}
 
 ##grab this from tab_two before pivot!!
-for_tile <- mxmh |> 
-  drop_na(frequency_classical, composer) |>
-  group_by(frequency_classical, composer) |>
-  summarize(count=n(), .groups = "drop")
+tab_two <- as.data.frame(table(mxmh$music_effects, mxmh$while_working))
 
-for_tile
-  
-ggplot(for_tile, aes(x=frequency_classical, y=composer)) +
-  geom_tile(aes(fill=count)) +
+ggplot(as.data.frame(tab_two), aes(x = Var1, y=Var2, fill=Freq)) +
+  geom_tile(color="black") +
+  #force an extreme monochrome scale
+  scale_fill_gradient(low="white", high="#006b4e")  +
+  #use helpers to apply variable names:
+  labs(x = names(vars_all[which(vars_all=="music_effects")]),
+       y = names(vars_all[which(vars_all=="while_working")])) +
   theme_minimal()
 ```
 
-
-
-##Sandbox: testing other display types
-
-Violin (alt. to boxplot)
-- good when cat has < 4 levels (LFBG are too messy)
-- could have with limited options
-
-```{r}
-ggplot(mxmh |> drop_na(music_effects),
-       aes(x=music_effects, y=ocd, fill=music_effects)) +
-  geom_violin()
-```
