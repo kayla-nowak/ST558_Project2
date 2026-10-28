@@ -243,48 +243,58 @@ server <- function(input, output, session) {
     validate( need(input$pick_apply,
                    message="Please click 'Apply subset' on the sidebar to generate data."))
     
+  
+    #Prep Local Objects
+    if(input$cross=="--") {
+      lab_num1   <- names(vars_all[which(vars_all==input$num1)])
+      title_prep <- paste0(input$pick_plot_n, " of ", lab_num1, " (Overall)")
+      data_prep  <- mxmh_sub() |> select(input$num1) |> drop_na(input$num1)
+      
+    } else {
+      lab_num1  <- names(vars_all[which(vars_all==input$num1)])
+      lab_cross <- names(vars_all[which(vars_all==input$cross)])
+      title_prep <- paste0(input$pick_plot_n, " of ", lab_num1, " by ", lab_cross)
+      data_prep <- mxmh_sub() |> select(input$num1, input$cross) |> drop_na(input$num1, input$cross)
+    }
+    
     # Density | Boxplot:
     if(input$pick_plot_n=="Density"){ 
       
       if(input$cross=="--"){  #Single Variable
-        n_plot <- ggplot(mxmh_sub() |> drop_na(input$num1), 
-                         aes_string(x=input$num1, color=input$num1,)) +
-          labs(x = names(vars_all[which(vars_all==input$num1)])) +
+        n_plot <- ggplot(data_prep, aes_string(x=input$num1)) +
+          labs(x = lab_num1, y="Density", title = title_prep) +
           geom_density(fill="#00BFC4") +
           theme_minimal()
         
       } else{   #By Category
-        n_plot <- ggplot(mxmh_sub() |> drop_na(input$num1,input$cross), 
-                         aes_string(x=input$num1,fill=input$cross)) +
-          labs(x = names(vars_all[which(vars_all==input$num1)])) +
-          scale_fill_discrete(names(vars_all[which(vars_all==input$cross)])) +
+        n_plot <- ggplot(data_prep, aes_string(x=input$num1, fill=input$cross)) +
+          labs(x = lab_num1, y="Density", title = title_prep) +
           geom_density() +
           facet_wrap(~ .data[[input$cross]]) + #requires data pronoun
+          scale_fill_discrete(lab_cross) +
           theme_minimal()
       }
       
     } else if (input$pick_plot_n=="Boxplot"){
       
       if(input$cross=="--"){  #Single Variable
-        n_plot <- ggplot(mxmh_sub() |> drop_na(input$num1),  
-                         aes_string(x=input$num1 )) +
-          labs(x = names(vars_all[which(vars_all==input$num1)])) +         
+        n_plot <- ggplot(data_prep, aes_string(y=input$num1 )) +
+          labs(y = lab_num1, title = title_prep) +         
           geom_boxplot(width=0.2, fill="#00BFC4") + 
-          coord_flip() +scale_y_discrete() +  #for univariate only
+          scale_x_discrete() +  #for univariate only
           theme_minimal() 
         
       } else {  #By Category
-        n_plot <- ggplot(mxmh_sub() |> drop_na(input$num1,input$cross),  
-                         aes_string(x=input$cross, y=input$num1, fill=input$cross)) +
-          geom_boxplot() + 
-          labs(x = names(vars_all[which(vars_all==input$cross)]),
-               y = names(vars_all[which(vars_all==input$num1)])) +
-          scale_fill_discrete(names(vars_all[which(vars_all==input$cross)])) +
+        n_plot <- ggplot(data_prep, aes_string(x=input$cross, y=input$num1, fill=input$cross)) +
+          labs(x = lab_cross, y=lab_num1, title = title_prep) +
+          geom_boxplot() +
+          scale_fill_discrete(lab_cross) +
           theme_minimal()
+    
       }
-      
     }
     
+    #Return for Render:
     n_plot
     
   })
@@ -347,7 +357,7 @@ server <- function(input, output, session) {
       
       c_plot <- ggplot(as.data.frame(tab), aes(x=Var1, y=Var2, fill=Freq)) +
         geom_tile(color="black") +
-        scale_fill_gradient(low="white", high="#006b4e") +
+        scale_fill_gradient(low="white", high="#007478") +
         labs(x = names(vars_all[which(vars_all==input$cat1)]),
               y = names(vars_all[which(vars_all==input$cat2)])) +
         theme_minimal()

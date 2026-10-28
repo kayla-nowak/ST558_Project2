@@ -146,23 +146,57 @@ tab_sum
 
 ### Density Plots
 
-Takes 1 numeric variables, and accepts 1 categorical variable as facet.
+For a numeric variable, with the option for 1 categorical variable as a facet.
+
+**Univariate**:
 
 ```{r}
-ggplot(mxmh |> drop_na(age, frequency_classical), 
-       aes(x=age, fill=frequency_classical)) +
-  geom_density() +
+ggplot(mxmh |> drop_na(age)) +
+  geom_density(aes(x=age), fill="#009e73") + 
+  labs(title="Density of Age",
+       x="Age", y="Density") +
+  scale_fill_discrete("Listening Frequency: Classical") +
+  theme_minimal() 
+```
+
+**Multivariate**:
+
+```{r}
+ggplot(mxmh |> drop_na(age, frequency_classical)) +
+  geom_density(aes(x=age, fill=frequency_classical)) +
   facet_wrap(~ frequency_classical) +
-  theme_minimal()
+  labs(title="Density of Age x Classical Listening Frequency",
+       x="Age", y="Density") +
+  scale_fill_discrete("Listening Frequency: Classical")+ 
+  theme_minimal() 
 ```
 
 ### Boxplots
 
-Takes 1 numeric variable and 1 categorical variable as x-axis grouping.
+For a numeric variable, with the option for 1 categorical variable as a within-plot grouping.
+
+**Univariate**:
 
 ```{r}
-ggplot(mxmh, aes(x=frequency_classical, y=age, fill=frequency_classical)) +
+ggplot(mxmh |> drop_na(age),
+       aes(y=age)) +
+  geom_boxplot(width=0.2, fill="#009e73") + 
+  scale_x_discrete() +  #for univariate only
+  labs(title="Boxplot of Age",
+       y="Age") +
+  theme_minimal() 
+```
+
+
+**Multivariate**:
+
+```{r}
+ggplot(mxmh |> drop_na(age, frequency_classical),
+       aes(x=frequency_classical, y=age, fill=frequency_classical)) +
   geom_boxplot() + 
+  labs(title="Boxplot of Age x Classical Listening Frequency",
+       x="Listening Frequency: Classical", y="Age") +
+  scale_fill_discrete("Listening Frequency: Classical") + 
   theme_minimal()
 ```
 
