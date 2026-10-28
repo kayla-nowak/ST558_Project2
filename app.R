@@ -77,15 +77,28 @@ ui <- page_fluid(
       tabsetPanel(
         type="tabs",
         
-        #About Tab
+        #--About Tab--
         tabPanel(
           "About", br(),
           layout_columns(
-            card("Background info..."),
+            
+            ##Background Card
+            card("Background info...",
+                 h4("Using this App"), 
+                 "The sidebar (on the left) subsets the MXMH dataset based on the provided inputs. This subset is then used for the Data Download and Data Exploration tabs. 
+Please click “Apply Subset” to generate the desired data subset. To change the subset, please make the desired adjustments and re-click the “Apply Subset” button to apply the updates.", 
+                 tags$p(tags$b("Data Download:"), " includes an interactive data table and the option to download the data as a CSV file. All available MXMH variables are included. Observations reflect the data subset criteria (from the sidebar)."),
+                 tags$p(tags$b("Data Exploration:"), " includes sub-tabs for Numerical or Categorical data exploration. Both tabs provide graphical and numerical summaries for the variable(s) selected at the top of the page. Note that the data subset (from the sidebar) remains in effect."),
+                 tags$p(tags$em("Numeric Data"), " offers 1 numeric variable and 1 categorical (grouping) variable for exploration. The user may choose either a density plot or boxplot graphical summary. The numeric summary is a table of mean, standard deviation, minimum, median, and maximum for the numeric variable at each level of the categorical variable."),
+                 tags$p(tags$em("Categorical Data"), " offers up to 2 categorical variables for exploration. The user may choose either a bar chart or heatmap graphical summary. The numeric summary is a contingency table.")),
+            
+            #--Reference Card--
             card("Data Source: Music & Mental Health Survey by Catherine Rasgaitis, 2022.",
                  tags$a("Available on Kaggle.com", href = "https://www.kaggle.com/datasets/catherinerasgaitis/mxmh-survey-results?select=mxmh_survey_results.csv"),
-                 "Data Accessed by Kayla Nowak,2026-10-20",
+                 "Data Accessed by Kayla Nowak, 2026-10-20",
                  tags$i("For educational purposes only.")),
+            
+            #--Logo Card--
             card(tags$img(src="mxmh_logo.png")),
             col_widths = c(12,6,6)
             )
