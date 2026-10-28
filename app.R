@@ -191,7 +191,7 @@ server <- function(input, output, session) {
     
     # Loading message
     validate( need(input$pick_apply, #boolean?
-                   message="Please click 'Apply subset' on the sidebar to generate data.")),
+                   message="Please click 'Apply Subset' on the sidebar to generate data.")),
     
     filename = function(){
       paste('mxmh_data', Sys.Date(),'.csv', sep='')
@@ -241,7 +241,7 @@ server <- function(input, output, session) {
     
     # Loading message
     validate( need(input$pick_apply,
-                   message="Please click 'Apply subset' on the sidebar to generate data."))
+                   message="Please click 'Apply Subset' on the sidebar to generate data."))
     
   
     #Prep Local Objects
@@ -332,34 +332,50 @@ server <- function(input, output, session) {
     
     # Loading message
     validate( need(input$pick_apply,
-                   message="Please click 'Apply subset' on the sidebar to generate data."))
+                   message="Please click 'Apply Subset' on the sidebar to generate data."))
+    
+    #Prep Local Objects
+    if(input$cat2=="--") {
+      lab_cat1   <- names(vars_all[which(vars_all==input$cat1)])
+      title_prep <- paste0(input$pick_plot_c, " of ", lab_cat1, " (Overall)")
+      data_prep  <- mxmh_sub() |> select(input$cat1) |> drop_na(input$cat1)
+      
+    } else {
+      lab_cat1  <- names(vars_all[which(vars_all==input$cat1)])
+      lab_cat2 <- names(vars_all[which(vars_all==input$cat2)])
+      title_prep <- paste0(input$pick_plot_c, " of ", lab_cat1, " by ", lab_cat2)
+      data_prep <- mxmh_sub() |> select(input$cat1, input$cat2) |> drop_na(input$cat1, input$cat2)
+    }
     
     # Bar Chart | Heatmap:
     if(input$pick_plot_c=="Bar Chart"){
     
-      g_chart <- ggplot(mxmh_sub(), aes_string(x=input$cat1)) +
-        labs(x = names(vars_all[which(vars_all==input$cat1)])) +
-        theme_minimal()
-  
       if(input$cat2=="--") {  #One-Way:
-        c_plot <- g_chart +
-          geom_bar() 
+        c_plot <- ggplot(data_prep, aes_string(x=input$cat1)) +
+          labs(x = lab_cat1, y = "Count", title = title_prep) +
+          geom_bar(fill="#00BFC4") +
+          theme_minimal()
         
       } else{  #Two-Way:
-        c_plot <- g_chart + 
+        c_plot <- ggplot(data_prep, aes_string(x=input$cat1)) +
+          labs(x = lab_cat1, y = "Count", title = title_prep) +
           geom_bar(aes_string(fill = input$cat2), position="dodge") +
-          scale_fill_discrete(names(vars_all[which(vars_all==input$cat2)]))
+          scale_fill_discrete(lab_cat2) +
+          theme_minimal()
         
       }
     } else if (input$pick_plot_c=="Heatmap"){
       
-      tab <- table(mxmh_sub()[[input$cat1]],mxmh_sub()[[input$cat2]])
+      #Additional prompt within Heatmap option:
+      validate( need(input$cat2 != "--",
+                message="Please select a second categorical variable for the heatmap display type."))
+      
+      tab <- table(data_prep[[input$cat1]],data_prep[[input$cat2]])
       
       c_plot <- ggplot(as.data.frame(tab), aes(x=Var1, y=Var2, fill=Freq)) +
         geom_tile(color="black") +
         scale_fill_gradient(low="white", high="#007478") +
-        labs(x = names(vars_all[which(vars_all==input$cat1)]),
-              y = names(vars_all[which(vars_all==input$cat2)])) +
+        labs(x = lab_cat1, y = lab_cat2, title = title_prep)+
         theme_minimal()
 
     }

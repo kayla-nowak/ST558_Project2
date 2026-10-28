@@ -210,7 +210,9 @@ If a second categorical variable is provided, that variable serves as a grouping
 
 ```{r}
 ggplot(mxmh, aes(x=frequency_classical)) +
-  geom_bar() + 
+  geom_bar(fill="#009e73") + 
+  labs(title="Bar Chart of Classical Listening Frequency",
+       x="Listening Frequency: Classical", y = "Count") +
   theme_minimal()
 ```
 
@@ -218,24 +220,28 @@ ggplot(mxmh, aes(x=frequency_classical)) +
 
 ```{r}
 ggplot(mxmh, aes(x=frequency_classical)) +
-  geom_bar(aes(fill=composer), position="dodge")+ 
+  geom_bar(aes(fill=composer), position="dodge") +
+  labs(title="Bar Chart of Classical Listening Frequency by Composer Status",
+       x="Listening Frequency: Classical", y = "Count") +
+  scale_fill_discrete("Composer Status") +
   theme_minimal()
 ```
 
 ### Heatmap
 
-A visualization of frequency density for a contingency table. Plotted on a monochromatic scale: lighter shading for lower frequency, darker shading for higher frequency. 
+A visualization of frequency concentrations for a two-way contingency table. Not available for single-variable reporting.
+
+Plotted on a monochromatic scale: lighter shading for lower frequency, darker shading for higher frequency. 
 
 ```{r}
 
-##grab this from tab_two before pivot!!
 tab_two <- as.data.frame(table(mxmh$music_effects, mxmh$while_working))
 
 ggplot(as.data.frame(tab_two), aes(x = Var1, y=Var2, fill=Freq)) +
   geom_tile(color="black") +
   #force an extreme monochrome scale
   scale_fill_gradient(low="white", high="#006b4e")  +
-  #use helpers to apply variable names:
+  #example of using helpers to apply variable names:
   labs(x = names(vars_all[which(vars_all=="music_effects")]),
        y = names(vars_all[which(vars_all=="while_working")])) +
   theme_minimal()
