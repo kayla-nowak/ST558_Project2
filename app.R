@@ -106,8 +106,9 @@ Please click “Apply Subset” to generate the desired data subset. To change t
         
         # ++ Data Download Tab ++
         tabPanel(
-          "Data Download",
-          card(downloadLink("downloadData", "Download as CSV")),
+          "Data Download", br(),
+          conditionalPanel("input.pick_apply",
+                           downloadLink("downloadData", "Download as CSV")), br(),
           DT::dataTableOutput(outputId="table_download")
           ),
         
@@ -183,16 +184,18 @@ server <- function(input, output, session) {
   
   #Table Print
   output$table_download <- DT::renderDataTable({
-      mxmh_sub()
+    
+    # Loading message
+    validate( need(input$pick_apply, #boolean?
+                   message="Please click 'Apply Subset' on the sidebar to generate data."))
+    
+    
+    mxmh_sub()
   })
   
   #Download Action
   output$downloadData <- downloadHandler(
-    
-    # Loading message
-    validate( need(input$pick_apply, #boolean?
-                   message="Please click 'Apply Subset' on the sidebar to generate data.")),
-    
+
     filename = function(){
       paste0('mxmh_data', Sys.Date(),'.csv')
     },
@@ -243,7 +246,6 @@ server <- function(input, output, session) {
     validate( need(input$pick_apply,
                    message="Please click 'Apply Subset' on the sidebar to generate data."))
     
-  
     #Prep Local Objects
     if(input$cross=="--") {
       lab_num1   <- names(vars_all[which(vars_all==input$num1)])
