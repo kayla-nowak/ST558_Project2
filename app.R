@@ -90,17 +90,24 @@ ui <- page_fluid(
           
             card(tags$img(src="mxmh_logo.png")),
             
-            card(h4("Using this App"), 
+            card(h4("Variables"),
+                 "The MxMH dataset includes three core sets of variables: ",
+                 tags$ul(
+                   tags$li('Self-Reported Mental Health (Anxiety, Depression, Insomnia, and OCD) are numeric ratings on a scale of 0-10, where 0 = "I do not experience this" and 10 = "I experience this regularly, constantly/or to an extreme".'),
+                   tags$li("Listening Frequency by Genre (for 16 genres) are ordinal responses of Never, Rarely, Sometimes, or Very Frequently."),
+                   tags$li("Other explanatory variables capture information about the respondent’s age, musical background/habits, and perceived impact of music on mental health.")),
+                 h4("Using this App"), 
                  "The sidebar (on the left) subsets the MxMH dataset based on the provided inputs. This subset is then used for the Data Download and Data Exploration tabs. 
 Please click “Apply Subset” to generate the desired data subset. To change the subset, please make the desired adjustments and then re-click the “Apply Subset” button to apply the updates.", 
                  
                  tags$p(tags$b("Data Download Tab"), " includes an interactive data table and the option to download the data as a CSV file. All available MxMH variables are included. Observations reflect the data subset criteria (from the sidebar)."),
                  
                  tags$p(tags$b("Data Exploration Tab"), " includes sub-tabs for Numerical or Categorical data exploration. Both tabs provide graphical and numerical summaries for the variable(s) selected at the top of the page. Note that the data subset (from the sidebar) remains in effect. "),
-                 
-                 tags$p(tags$em("Numeric Data"), " offers 1 numeric variable and 1 categorical (grouping) variable for exploration. The user may choose either a density plot or boxplot graphical summary. The numeric summary is a table of mean, standard deviation, minimum, median, and maximum for the numeric variable at each level of the categorical variable."),
-                 
-                 tags$p(tags$em("Categorical Data"), ' accepts up to 2 categorical variables for exploration. The user may choose either a bar chart or heatmap graphical summary; the numeric summary is a contingency table. For single-variable exploration, leave the secondary variable input set to "--". ')),
+                 tags$ul(
+                   
+                   tags$li(tags$p(tags$em("Numeric Data"), " offers 1 numeric variable and 1 categorical (grouping) variable for exploration. The user may choose either a density plot or boxplot graphical summary. The numeric summary is a table of mean, standard deviation, minimum, median, and maximum for the numeric variable at each level of the categorical variable.")), br(),
+                   tags$li(tags$p(tags$em("Categorical Data"), ' accepts up to 2 categorical variables for exploration. The user may choose either a bar chart or heatmap graphical summary; the numeric summary is a contingency table. For single-variable exploration, leave the secondary variable input set to "--". Note that only the bar chart is available for single-category plotting.'))
+                 )),
             col_widths = c(8,4,12))
           ),
         
