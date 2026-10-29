@@ -77,15 +77,7 @@ Save cleaned data to repo for future access:
 save(mxmh, file="data/mxmh.RData")
 ```
 
-## Helper File
-
-This project includes a `helper.R` file, which defines core reference objects to be used across the project. The helper file is stored separately in the repository and included as a source file for this static EDA and the app.
-
-- `vars_lfbg` is a vector of all the "listening frequency by genre" variable names. These variables are all ordinal categorical: Never (1) \< Rarely (2) \< Sometimes (3) \< Very frequently (4).
-
-- `vars_mh` is vector of all the "self-reported mental health" variable names. These variables are numeric with range 0-10 (0 = "I do not experience this", 10 = "I experience this regularly, constantly/or to an extreme").
-
-- `vars_oth` is a vector of all other variables on the dataset.
+Load the `helper.R` file with variable lists and labels. (Note: This file is mainly used by the app, but it was operationally tested for the static Heatmap plot.)
 
 ```{r}
 source("helpers.R")
@@ -187,7 +179,6 @@ ggplot(mxmh |> drop_na(age),
   theme_minimal() 
 ```
 
-
 **Multivariate**:
 
 ```{r}
@@ -202,7 +193,7 @@ ggplot(mxmh |> drop_na(age, frequency_classical),
 
 ### Bar Charts
 
-Frequency bar charts for 1-2 categorical variables. 
+Frequency bar charts for 1-2 categorical variables.
 
 If a second categorical variable is provided, that variable serves as a grouping effect for side-by-side bar chart layout.
 
@@ -231,7 +222,7 @@ ggplot(mxmh, aes(x=frequency_classical)) +
 
 A visualization of frequency concentrations for a two-way contingency table. Not available for single-variable reporting.
 
-Plotted on a monochromatic scale: lighter shading for lower frequency, darker shading for higher frequency. 
+Plotted on a monochromatic scale: lighter shading for lower frequency, darker shading for higher frequency.
 
 ```{r}
 
@@ -246,4 +237,3 @@ ggplot(as.data.frame(tab_two), aes(x = Var1, y=Var2, fill=Freq)) +
        y = names(vars_all[which(vars_all=="while_working")])) +
   theme_minimal()
 ```
-

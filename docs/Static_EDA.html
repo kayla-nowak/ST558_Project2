@@ -337,15 +337,7 @@ permissions*                736   1 1.00e+00       1.00</code></pre>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">save</span>(mxmh, <span class="at">file=</span><span class="st">"data/mxmh.RData"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-</section>
-<section id="helper-file" class="level2">
-<h2 class="anchored" data-anchor-id="helper-file">Helper File</h2>
-<p>This project includes a <code>helper.R</code> file, which defines core reference objects to be used across the project. The helper file is stored separately in the repository and included as a source file for this static EDA and the app.</p>
-<ul>
-<li><p><code>vars_lfbg</code> is a vector of all the “listening frequency by genre” variable names. These variables are all ordinal categorical: Never (1) &lt; Rarely (2) &lt; Sometimes (3) &lt; Very frequently (4).</p></li>
-<li><p><code>vars_mh</code> is vector of all the “self-reported mental health” variable names. These variables are numeric with range 0-10 (0 = “I do not experience this”, 10 = “I experience this regularly, constantly/or to an extreme”).</p></li>
-<li><p><code>vars_oth</code> is a vector of all other variables on the dataset.</p></li>
-</ul>
+<p>Load the <code>helper.R</code> file with variable lists and labels. (Note: This file is mainly used by the app, but it was operationally tested for the static Heatmap plot.)</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">"helpers.R"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>

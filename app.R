@@ -194,7 +194,7 @@ server <- function(input, output, session) {
                    message="Please click 'Apply Subset' on the sidebar to generate data.")),
     
     filename = function(){
-      paste('mxmh_data', Sys.Date(),'.csv', sep='')
+      paste0('mxmh_data', Sys.Date(),'.csv')
     },
     content = function(con){
       write.csv(mxmh_sub(), con)
@@ -220,7 +220,7 @@ server <- function(input, output, session) {
       for_numtab <- mxmh_sub() |> 
         select(input$num1, input$cross) |>
         drop_na(input$num1, input$cross) |>
-        group_by(.data[[input$cross]])    #group_by requires data pronoun syntax
+        group_by(!!sym(input$cross))
       
     }
     
@@ -264,15 +264,15 @@ server <- function(input, output, session) {
         n_plot <- ggplot(data_prep, aes_string(x=input$num1)) +
           labs(x = lab_num1, y="Density", title = title_prep) +
           geom_density(fill="#00BFC4") +
-          theme_minimal()
+          theme_minimal(base_size = 16)
         
       } else{   #By Category
         n_plot <- ggplot(data_prep, aes_string(x=input$num1, fill=input$cross)) +
           labs(x = lab_num1, y="Density", title = title_prep) +
           geom_density() +
-          facet_wrap(~ .data[[input$cross]]) + #requires data pronoun
+          facet_wrap(~ get(input$cross)) +
           scale_fill_discrete(lab_cross) +
-          theme_minimal()
+          theme_minimal(base_size = 16)
       }
       
     } else if (input$pick_plot_n=="Boxplot"){
@@ -282,15 +282,15 @@ server <- function(input, output, session) {
           labs(y = lab_num1, title = title_prep) +         
           geom_boxplot(width=0.2, fill="#00BFC4") + 
           scale_x_discrete() +  #for univariate only
-          theme_minimal() 
+          theme_minimal(base_size = 16) 
         
       } else {  #By Category
         n_plot <- ggplot(data_prep, aes_string(x=input$cross, y=input$num1, fill=input$cross)) +
           labs(x = lab_cross, y=lab_num1, title = title_prep) +
           geom_boxplot() +
           scale_fill_discrete(lab_cross) +
-          theme_minimal()
-    
+          theme_minimal(base_size = 16)
+        
       }
     }
     
@@ -314,8 +314,6 @@ server <- function(input, output, session) {
     
     } else {  #Two-Way:
       
-      #req(input$cat1, input$cat2)
-      #tab <- table(mxmh_sub()[[input$cat1]],mxmh_sub()[[input$cat2]])
       tab <- mxmh_sub() |>
         drop_na(input$cat1,input$cat2) |>
         select(input$cat1,input$cat2)  |>
@@ -354,14 +352,14 @@ server <- function(input, output, session) {
         c_plot <- ggplot(data_prep, aes_string(x=input$cat1)) +
           labs(x = lab_cat1, y = "Count", title = title_prep) +
           geom_bar(fill="#00BFC4") +
-          theme_minimal()
+          theme_minimal(base_size = 16)
         
       } else{  #Two-Way:
         c_plot <- ggplot(data_prep, aes_string(x=input$cat1)) +
           labs(x = lab_cat1, y = "Count", title = title_prep) +
           geom_bar(aes_string(fill = input$cat2), position="dodge") +
           scale_fill_discrete(lab_cat2) +
-          theme_minimal()
+          theme_minimal(base_size = 16)
         
       }
     } else if (input$pick_plot_c=="Heatmap"){
@@ -376,10 +374,11 @@ server <- function(input, output, session) {
         geom_tile(color="black") +
         scale_fill_gradient(low="white", high="#007478") +
         labs(x = lab_cat1, y = lab_cat2, title = title_prep)+
-        theme_minimal()
+        theme_minimal(base_size = 16)
 
     }
     
+    #Return for Render:
     c_plot
     
   })

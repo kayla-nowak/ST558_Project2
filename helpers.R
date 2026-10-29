@@ -6,22 +6,22 @@
 
 #Listening Frequency By Genre
 vars_lfbg <-c(
- "Frequency: Classical Music" =   "frequency_classical",
- "Frequency: Country Music" 	=   "frequency_country",
- "Frequency: EDM Music"       =   "frequency_edm",
- "Frequency: Folk Music"  		=   "frequency_folk",
- "Frequency: Gospel Music" 		=   "frequency_gospel",
- "Frequency: Hip-Hop Music" 	=   "frequency_hip_hop",
- "Frequency: Jazz Music" 	  	=   "frequency_jazz",
- "Frequency: K-Pop Music" 		=   "frequency_k_pop",
- "Frequency: Latin Music" 		=   "frequency_latin",
- "Frequency: Lofi Music" 	  	=   "frequency_lofi",
- "Frequency: Metal Music" 		=   "frequency_metal",
- "Frequency: Pop Music" 		  =   "frequency_pop",
- "Frequency: R&B Music"       =   "frequency_r_b",
- "Frequency: Rap Music"       =   "frequency_rap",
- "Frequency: Rock Music"      =   "frequency_rock",
- "Frequency: Video Game Music" =  "frequency_video_game_music"  
+ "Listening Frequency: Classical Music" =   "frequency_classical",
+ "Listening Frequency: Country Music" 	=   "frequency_country",
+ "Listening Frequency: EDM Music"       =   "frequency_edm",
+ "Listening Frequency: Folk Music"  		=   "frequency_folk",
+ "Listening Frequency: Gospel Music" 		=   "frequency_gospel",
+ "Listening Frequency: Hip-Hop Music" 	=   "frequency_hip_hop",
+ "Listening Frequency: Jazz Music" 	  	=   "frequency_jazz",
+ "Listening Frequency: K-Pop Music" 		=   "frequency_k_pop",
+ "Listening Frequency: Latin Music" 		=   "frequency_latin",
+ "Listening Frequency: Lofi Music" 	  	=   "frequency_lofi",
+ "Listening Frequency: Metal Music" 		=   "frequency_metal",
+ "Listening Frequency: Pop Music" 		  =   "frequency_pop",
+ "Listening Frequency: R&B Music"       =   "frequency_r_b",
+ "Listening Frequency: Rap Music"       =   "frequency_rap",
+ "Listening Frequency: Rock Music"      =   "frequency_rock",
+ "Listening Frequency: Video Game Music" =  "frequency_video_game_music"  
 )
 
 #Mental Health Outcomes
